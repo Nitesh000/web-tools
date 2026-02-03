@@ -1,0 +1,96 @@
+# Web Tools Suite - HTTP Headers Configuration
+# For Netlify/Cloudflare Pages deployment
+# https://docs.netlify.com/routing/headers/
+
+# Global headers for all routes
+/*
+  # Security Headers
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+
+  # Content Security Policy
+  # Adjust as needed for your specific requirements
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'
+
+  # Strict Transport Security (enable in production with HTTPS)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+# Static assets - Long cache (1 year)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# JavaScript and CSS bundles (hashed filenames)
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fonts - Long cache
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images - Medium cache (1 month)
+/*.png
+  Cache-Control: public, max-age=2592000
+
+/*.jpg
+  Cache-Control: public, max-age=2592000
+
+/*.jpeg
+  Cache-Control: public, max-age=2592000
+
+/*.svg
+  Cache-Control: public, max-age=2592000
+
+/*.webp
+  Cache-Control: public, max-age=2592000
+
+/*.gif
+  Cache-Control: public, max-age=2592000
+
+/*.ico
+  Cache-Control: public, max-age=2592000
+
+# Favicon - Long cache
+/favicon.svg
+  Cache-Control: public, max-age=31536000
+
+/favicon.ico
+  Cache-Control: public, max-age=31536000
+
+# PWA Manifest - Short cache for updates
+/manifest.json
+  Cache-Control: public, max-age=86400
+  Content-Type: application/manifest+json
+
+# Service Worker - No cache (always fresh)
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Sitemap and Robots - Medium cache (1 day)
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+  Content-Type: application/xml
+
+/robots.txt
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain
+
+# HTML pages - Short cache for fresh content
+/index.html
+  Cache-Control: no-cache
+
+/*.html
+  Cache-Control: no-cache
+
+# API routes (if any) - No cache
+/api/*
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Robots-Tag: noindex

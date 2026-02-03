@@ -1,0 +1,39 @@
+# Web Tools Suite - Robots.txt
+# https://webtools.suite
+
+# Allow all crawlers to access the site
+User-agent: *
+Allow: /
+
+# Disallow admin and API paths
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api
+Disallow: /api/
+Disallow: /_internal/
+Disallow: /private/
+
+# Disallow common sensitive paths
+Disallow: /*.json$
+Disallow: /assets/*.map$
+
+# Crawl-delay for polite crawling (optional)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://webtools.suite/sitemap.xml
+
+# Additional sitemaps (if any)
+# Sitemap: https://webtools.suite/sitemap-blog.xml
+
+# Google-specific settings
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+# Bing-specific settings
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /api
