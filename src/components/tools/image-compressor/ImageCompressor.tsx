@@ -308,7 +308,7 @@ export function ImageCompressor() {
                 quality: Number(e.target.value),
               }))
             }
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-700 accent-blue-500"
+            className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-200 accent-blue-500"
             aria-valuemin={1}
             aria-valuemax={100}
             aria-valuenow={options.quality}
@@ -345,7 +345,7 @@ export function ImageCompressor() {
                 ),
               }))
             }
-            className="py-2 px-3 w-full text-white rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 bg-slate-700 border-slate-600"
+            className="py-2 px-3 w-full rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 text-slate-800 bg-slate-300 border-slate-600"
           />
         </div>
 
@@ -375,7 +375,7 @@ export function ImageCompressor() {
                 ),
               }))
             }
-            className="py-2 px-3 w-full text-white rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 bg-slate-700 border-slate-600"
+            className="py-2 px-3 w-full rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 text-slate-800 bg-slate-300 border-slate-600"
           />
         </div>
 
@@ -397,7 +397,7 @@ export function ImageCompressor() {
                   .value as CompressionOptions["outputFormat"],
               }))
             }
-            className="py-2 px-3 w-full text-white rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 bg-slate-700 border-slate-600"
+            className="py-2 px-3 w-full rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 text-slate-800 bg-slate-300 border-slate-600"
           >
             <option value="original">Keep Original</option>
             <option value="jpeg">JPEG</option>
@@ -429,7 +429,7 @@ export function ImageCompressor() {
           ${
             isDragging
               ? "border-blue-500 bg-blue-500/10"
-              : "border-slate-600 hover:border-slate-500 hover:bg-slate-700/30"
+              : "border-slate-200 hover:border-slate-300 hover:bg-slate-200"
           }
         `}
       >
@@ -447,7 +447,7 @@ export function ImageCompressor() {
           strokeWidth={1.5}
           aria-hidden="true"
         />
-        <p className="mb-2 text-lg text-slate-300">
+        <p className="mb-2 text-lg text-slate-800">
           {isDragging
             ? "Drop images here"
             : "Drag & drop images here, or click to select"}
@@ -501,20 +501,20 @@ export function ImageCompressor() {
         <div className="p-4 text-center rounded-lg bg-slate-700/30">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <p className="text-sm text-slate-400">Original Total</p>
-              <p className="text-lg font-semibold text-white">
+              <p className="text-sm text-slate-700">Original Total</p>
+              <p className="text-lg font-semibold text-slate-900">
                 {formatFileSize(totalOriginalSize)}
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-400">Compressed Total</p>
-              <p className="text-lg font-semibold text-white">
+              <p className="text-sm text-slate-700">Compressed Total</p>
+              <p className="text-lg font-semibold text-slate-900">
                 {formatFileSize(totalCompressedSize)}
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-400">Total Saved</p>
-              <p className="text-lg font-semibold text-green-400">
+              <p className="text-sm text-slate-700">Total Saved</p>
+              <p className="text-lg font-semibold text-green-900">
                 {totalOriginalSize > 0
                   ? `${calculateReduction(totalOriginalSize, totalCompressedSize)}%`
                   : "0%"}
