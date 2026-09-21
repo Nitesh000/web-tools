@@ -207,7 +207,9 @@ export function ColorPicker() {
     setHex8(hex6AlphaToHex8(color, newAlpha));
   }, [color]);
 
-  // Load saved colors from localStorage
+  // Load saved colors from localStorage (deferred to an effect - this is SSG'd,
+  // so localStorage isn't available during the server render and reading it eagerly
+  // in a lazy useState initializer would cause a hydration mismatch)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {

@@ -1,7 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { removeBackground, type Config } from '@imgly/background-removal';
 import clsx from 'clsx';
+import { ChevronsLeftRight, AlertCircle, ArrowRight, Wand2, Download, RotateCcw } from 'lucide-react';
 import { FileUploader } from '../../common/FileUploader';
+import { useToast } from '../../common/Toast';
 
 interface ProcessingState {
   status: 'idle' | 'loading' | 'processing' | 'done' | 'error';
@@ -24,6 +26,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export function BackgroundRemover() {
+  const { showToast } = useToast();
   const [originalImage, setOriginalImage] = useState<ImageData | null>(null);
   const [processedImage, setProcessedImage] = useState<ImageData | null>(null);
   const [processing, setProcessing] = useState<ProcessingState>({
@@ -110,15 +113,18 @@ export function BackgroundRemover() {
         progress: 100,
         message: 'Background removed successfully!',
       });
+      showToast('Background removed successfully', 'success');
     } catch (error) {
       console.error('Background removal failed:', error);
+      const message = error instanceof Error ? error.message : 'Failed to remove background. Please try again.';
       setProcessing({
         status: 'error',
         progress: 0,
-        message: error instanceof Error ? error.message : 'Failed to remove background. Please try again.',
+        message,
       });
+      showToast(message, 'error');
     }
-  }, [originalImage]);
+  }, [originalImage, showToast]);
 
   const handleDownload = useCallback(() => {
     if (!processedImage) return;
@@ -129,7 +135,8 @@ export function BackgroundRemover() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [processedImage]);
+    showToast('Downloaded PNG', 'success');
+  }, [processedImage, showToast]);
 
   const handleReset = useCallback(() => {
     if (originalImage?.url) {
@@ -385,19 +392,7 @@ export function BackgroundRemover() {
                     style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
                   >
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
-                      <svg
-                        className="w-6 h-6 text-slate-700"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 9l4-4 4 4m0 6l-4 4-4-4"
-                        />
-                      </svg>
+                      <ChevronsLeftRight className="w-6 h-6 text-slate-700" />
                     </div>
                   </div>
                 )}
@@ -423,19 +418,7 @@ export function BackgroundRemover() {
               role="alert"
               className="flex items-center gap-3 p-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-400"
             >
-              <svg
-                className="w-5 h-5 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <span>{processing.message}</span>
             </div>
           )}
@@ -449,19 +432,7 @@ export function BackgroundRemover() {
                   {formatFileSize(originalImage.size)}
                 </p>
               </div>
-              <svg
-                className="w-6 h-6 text-slate-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
+              <ArrowRight className="w-6 h-6 text-slate-500" />
               <div className="text-center">
                 <p className="text-xs text-slate-400 uppercase tracking-wide">Processed</p>
                 <p className="text-lg font-semibold text-green-400">
@@ -478,19 +449,7 @@ export function BackgroundRemover() {
                 onClick={processImage}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+                <Wand2 className="w-5 h-5" />
                 Remove Background
               </button>
             )}
@@ -500,19 +459,7 @@ export function BackgroundRemover() {
                 onClick={handleDownload}
                 className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  />
-                </svg>
+                <Download className="w-5 h-5" />
                 Download PNG
               </button>
             )}
@@ -527,19 +474,7 @@ export function BackgroundRemover() {
                   : 'bg-slate-700 hover:bg-slate-600 text-white'
               )}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
+              <RotateCcw className="w-5 h-5" />
               Start Over
             </button>
           </div>

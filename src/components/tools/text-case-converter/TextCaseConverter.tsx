@@ -50,7 +50,7 @@ function splitIntoWords(text: string): string[] {
   return text
     .replace(/([a-z])([A-Z])/g, '$1 $2') // camelCase -> camel Case
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2') // XMLParser -> XML Parser
-    .replace(/[_\-\.]+/g, ' ') // snake_case, kebab-case, dot.case -> spaces
+    .replace(/[_\-.]+/g, ' ') // snake_case, kebab-case, dot.case -> spaces
     .trim()
     .split(/\s+/)
     .filter(Boolean);

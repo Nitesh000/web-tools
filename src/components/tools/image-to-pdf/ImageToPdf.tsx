@@ -1,8 +1,11 @@
 import { useCallback } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useDropzone, type FileRejection } from 'react-dropzone'
+import { UploadCloud, ChevronUp, ChevronDown, X, Loader2, FileDown } from 'lucide-react'
 import { useImageToPdf } from '../../../hooks/useImageToPdf'
+import { useToast } from '../../common/Toast'
 
 export function ImageToPdf() {
+  const { showToast } = useToast()
   const {
     files,
     isConverting,
@@ -19,10 +22,15 @@ export function ImageToPdf() {
   } = useImageToPdf()
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      addFiles(acceptedFiles)
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      if (fileRejections.length > 0) {
+        showToast(`Skipped ${fileRejections.length} unsupported file(s)`, 'error')
+      }
+      if (acceptedFiles.length > 0) {
+        addFiles(acceptedFiles)
+      }
     },
-    [addFiles]
+    [addFiles, showToast]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -55,19 +63,7 @@ export function ImageToPdf() {
         }`}
       >
         <input {...getInputProps()} />
-        <svg
-          className="w-12 h-12 mx-auto mb-4 text-slate-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
+        <UploadCloud className="w-12 h-12 mx-auto mb-4 text-slate-400" strokeWidth={1.5} />
         <p className="text-lg font-medium text-white mb-2">
           {isDragActive ? 'Drop your images here' : 'Drag & drop images here'}
         </p>
@@ -111,9 +107,7 @@ export function ImageToPdf() {
                     className="p-1.5 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     title="Move up"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                    </svg>
+                    <ChevronUp className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => moveImage(index, 'down')}
@@ -121,18 +115,14 @@ export function ImageToPdf() {
                     className="p-1.5 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     title="Move down"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <ChevronDown className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => removeFile(file.id)}
                     className="p-1.5 text-red-400 hover:text-red-300 transition-colors"
                     title="Remove"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -188,23 +178,25 @@ export function ImageToPdf() {
 
           {/* Convert Button */}
           <button
-            onClick={convert}
+            onClick={async () => {
+              try {
+                await convert()
+                showToast('PDF downloaded', 'success')
+              } catch (error) {
+                showToast(error instanceof Error ? error.message : 'Failed to create PDF', 'error')
+              }
+            }}
             disabled={files.length === 0 || isConverting}
             className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             {isConverting ? (
               <>
-                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
+                <Loader2 className="w-5 h-5 animate-spin" />
                 Creating PDF...
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
+                <FileDown className="w-5 h-5" />
                 Create PDF from {files.length} Image{files.length !== 1 ? 's' : ''}
               </>
             )}

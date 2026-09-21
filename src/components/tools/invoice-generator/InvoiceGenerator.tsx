@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
+import { jsPDF } from 'jspdf';
 import clsx from 'clsx';
+import { Printer, Download } from 'lucide-react';
+import { useToast } from '../../common/Toast';
 
 // Types
 interface LineItem {
@@ -111,6 +114,8 @@ const getInitialData = (): InvoiceData => ({
 });
 
 export function InvoiceGenerator() {
+  const { showToast } = useToast();
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [data, setData] = useState<InvoiceData>(() => {
     if (typeof window === 'undefined') return getInitialData();
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -251,6 +256,44 @@ export function InvoiceGenerator() {
     window.print();
   };
 
+  const handleDownloadPdf = useCallback(async () => {
+    if (!printRef.current) return;
+
+    const wasShowingPreview = showPreview;
+    if (!wasShowingPreview) {
+      setShowPreview(true);
+      // Wait for the preview to mount/become visible before capturing it
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }
+
+    setIsGeneratingPdf(true);
+    try {
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      await doc.html(printRef.current, {
+        x: 0,
+        y: 0,
+        width: pageWidth,
+        windowWidth: printRef.current.scrollWidth,
+        autoPaging: 'text',
+        html2canvas: { scale: pageWidth / printRef.current.scrollWidth },
+      });
+
+      const fileName = `invoice-${data.invoicePrefix}${data.invoiceNumber || '000000'}.pdf`;
+      doc.save(fileName);
+      showToast('Invoice PDF downloaded', 'success');
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      showToast('Could not generate PDF - try Print instead', 'error');
+    } finally {
+      setIsGeneratingPdf(false);
+      if (!wasShowingPreview) {
+        setShowPreview(false);
+      }
+    }
+  }, [data.invoicePrefix, data.invoiceNumber, showPreview, showToast]);
+
   const inputClasses = clsx(
     'w-full px-3 py-2 rounded-lg',
     'bg-slate-700/50 border border-slate-600/50',
@@ -346,10 +389,20 @@ export function InvoiceGenerator() {
           </button>
           <button
             type="button"
-            onClick={handlePrint}
-            className={clsx(buttonClasses, 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500')}
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className={clsx(buttonClasses, 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 disabled:opacity-60 flex items-center gap-2')}
           >
-            Download PDF
+            <Download className="w-4 h-4" />
+            {isGeneratingPdf ? 'Generating...' : 'Download PDF'}
+          </button>
+          <button
+            type="button"
+            onClick={handlePrint}
+            className={clsx(buttonClasses, 'bg-slate-600 hover:bg-slate-500 text-white focus:ring-slate-400 flex items-center gap-2')}
+          >
+            <Printer className="w-4 h-4" />
+            Print
           </button>
         </div>
         <div className="flex items-center gap-3">
@@ -645,7 +698,7 @@ export function InvoiceGenerator() {
                         type="number"
                         id={`${formId}-item-qty-${index}`}
                         value={item.quantity}
-                        onChange={(e) => updateLineItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                        onChange={(e) => updateLineItem(item.id, 'quantity', Math.max(0, parseFloat(e.target.value) || 0))}
                         min="0"
                         step="1"
                         className={inputClasses}
@@ -659,7 +712,7 @@ export function InvoiceGenerator() {
                         type="number"
                         id={`${formId}-item-price-${index}`}
                         value={item.unitPrice}
-                        onChange={(e) => updateLineItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                        onChange={(e) => updateLineItem(item.id, 'unitPrice', Math.max(0, parseFloat(e.target.value) || 0))}
                         min="0"
                         step="0.01"
                         placeholder="0.00"
@@ -712,7 +765,7 @@ export function InvoiceGenerator() {
                       type="number"
                       id={`${formId}-tax-rate`}
                       value={data.taxRate}
-                      onChange={(e) => setData(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))}
+                      onChange={(e) => setData(prev => ({ ...prev, taxRate: Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)) }))}
                       min="0"
                       max="100"
                       step="0.1"
@@ -727,7 +780,7 @@ export function InvoiceGenerator() {
                       type="number"
                       id={`${formId}-discount`}
                       value={data.discount}
-                      onChange={(e) => setData(prev => ({ ...prev, discount: parseFloat(e.target.value) || 0 }))}
+                      onChange={(e) => setData(prev => ({ ...prev, discount: Math.max(0, parseFloat(e.target.value) || 0) }))}
                       min="0"
                       step="0.01"
                       className={inputClasses}

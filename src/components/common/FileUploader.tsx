@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import clsx from 'clsx';
+import { Upload, AlertCircle } from 'lucide-react';
+import { useToast } from './Toast';
 
 interface FileUploaderProps {
   accept?: string;
@@ -20,6 +22,7 @@ export function FileUploader({
   label = 'Drop your file here or click to browse',
   hint,
 }: FileUploaderProps) {
+  const { showToast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,7 +34,9 @@ export function FileUploader({
       // Check file size
       if (file.size > maxSize) {
         const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(0);
-        setError(`File size exceeds ${maxSizeMB}MB limit`);
+        const message = `File size exceeds ${maxSizeMB}MB limit`;
+        setError(message);
+        showToast(message, 'error');
         return false;
       }
 
@@ -48,13 +53,14 @@ export function FileUploader({
 
         if (!isAccepted) {
           setError('File type not supported');
+          showToast('File type not supported', 'error');
           return false;
         }
       }
 
       return true;
     },
-    [accept, maxSize]
+    [accept, maxSize, showToast]
   );
 
   const handleFile = useCallback(
@@ -177,23 +183,13 @@ export function FileUploader({
               }
             )}
           >
-            <svg
+            <Upload
               className={clsx('w-8 h-8 transition-colors', {
                 'text-slate-400': !isDragging,
                 'text-white': isDragging,
               })}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
               aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
+            />
           </div>
 
           {/* Label */}
@@ -210,20 +206,7 @@ export function FileUploader({
           role="alert"
           className="mt-3 flex items-center gap-2 text-red-400 text-sm"
         >
-          <svg
-            className="w-4 h-4 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+          <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}

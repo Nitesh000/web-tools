@@ -1,8 +1,11 @@
 import { useCallback } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useDropzone, type FileRejection } from 'react-dropzone'
+import { FileUp, FileText, Loader2, Download, Check } from 'lucide-react'
 import { usePdfToImage } from '../../../hooks/usePdfToImage'
+import { useToast } from '../../common/Toast'
 
 export function PdfToImage() {
+  const { showToast } = useToast()
   const {
     pdfFile,
     pages,
@@ -23,12 +26,20 @@ export function PdfToImage() {
   } = usePdfToImage()
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      if (fileRejections.length > 0) {
+        showToast('Please select a valid PDF file', 'error')
+        return
+      }
       if (acceptedFiles.length > 0) {
-        loadPdfFile(acceptedFiles[0])
+        try {
+          await loadPdfFile(acceptedFiles[0])
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : 'Could not read that PDF', 'error')
+        }
       }
     },
-    [loadPdfFile]
+    [loadPdfFile, showToast]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -50,19 +61,7 @@ export function PdfToImage() {
           }`}
         >
           <input {...getInputProps()} />
-          <svg
-            className="w-12 h-12 mx-auto mb-4 text-slate-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-            />
-          </svg>
+          <FileUp className="w-12 h-12 mx-auto mb-4 text-slate-400" strokeWidth={1.5} />
           <p className="text-lg font-medium text-white mb-2">
             {isDragActive ? 'Drop your PDF here' : 'Drag & drop your PDF here'}
           </p>
@@ -72,9 +71,7 @@ export function PdfToImage() {
         <div className="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-red-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" />
-              </svg>
+              <FileText className="w-6 h-6 text-red-400" />
             </div>
             <div>
               <p className="font-medium text-white">{pdfFile.name}</p>
@@ -152,13 +149,7 @@ export function PdfToImage() {
                 </div>
                 {selectedPages.includes(page.pageNumber) && (
                   <div className="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <Check className="w-3 h-3 text-white" />
                   </div>
                 )}
               </button>
@@ -214,23 +205,25 @@ export function PdfToImage() {
 
           {/* Convert Button */}
           <button
-            onClick={convertSelected}
+            onClick={async () => {
+              try {
+                await convertSelected()
+                showToast('Images downloaded', 'success')
+              } catch (error) {
+                showToast(error instanceof Error ? error.message : 'Conversion failed', 'error')
+              }
+            }}
             disabled={selectedPages.length === 0 || isConverting}
             className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             {isConverting ? (
               <>
-                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
+                <Loader2 className="w-5 h-5 animate-spin" />
                 Converting...
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
+                <Download className="w-5 h-5" />
                 Convert {selectedPages.length} Page{selectedPages.length !== 1 ? 's' : ''} to Images
               </>
             )}

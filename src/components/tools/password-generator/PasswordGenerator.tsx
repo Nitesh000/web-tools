@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
+import { useToast } from '../../common/Toast';
 
 // Character sets for password generation
 const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -7,7 +8,7 @@ const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
 const NUMBERS = '0123456789';
 const SYMBOLS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
 const AMBIGUOUS_CHARS = '0O1lI';
-const SIMILAR_CHARS = '{}[]()\/\'"`~,;:.<>';
+const SIMILAR_CHARS = '{}[]()/\'"`~,;:.<>';
 
 // Word list for passphrase generation
 const WORD_LIST = [
@@ -83,6 +84,7 @@ const strengthConfig: Record<PasswordStrength, { label: string; color: string; b
 };
 
 export function PasswordGenerator() {
+  const { showToast } = useToast();
   const [options, setOptions] = useState<PasswordOptions>({
     length: 16,
     uppercase: true,
@@ -187,9 +189,11 @@ export function PasswordGenerator() {
     try {
       await navigator.clipboard.writeText(password.value);
       setCopiedId(password.id);
+      showToast('Password copied to clipboard', 'success');
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       console.error('Failed to copy password:', err);
+      showToast('Failed to copy', 'error');
     }
   };
 
@@ -199,9 +203,11 @@ export function PasswordGenerator() {
       const allPasswords = passwords.map(p => p.value).join('\n');
       await navigator.clipboard.writeText(allPasswords);
       setCopiedAll(true);
+      showToast(`Copied ${passwords.length} passwords to clipboard`, 'success');
       setTimeout(() => setCopiedAll(false), 2000);
     } catch (err) {
       console.error('Failed to copy passwords:', err);
+      showToast('Failed to copy', 'error');
     }
   };
 

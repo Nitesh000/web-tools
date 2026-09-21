@@ -316,7 +316,8 @@ export function combineSchemas(...schemas: object[]): object {
     '@context': 'https://schema.org',
     '@graph': schemas.map((schema) => {
       // Remove @context from individual schemas when combining
-      const { '@context': _, ...rest } = schema as Record<string, unknown>;
+      const rest = { ...(schema as Record<string, unknown>) };
+      delete rest['@context'];
       return rest;
     }),
   };

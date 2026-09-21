@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback, useEffect, type ChangeEvent } from 'react';
 import GIF from 'gif.js';
 import gifWorkerUrl from 'gif.js/dist/gif.worker.js?url';
+import { UploadCloud, AlertCircle, RefreshCw, Download } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { ProgressBar } from '@/components/common/ProgressBar';
+import { useToast } from '@/components/common/Toast';
 
 interface VideoToGifSettings {
   startTime: number;
@@ -31,6 +33,7 @@ const FRAME_RATES = [5, 10, 15, 20, 25, 30];
 const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 
 export function VideoToGif() {
+  const { showToast } = useToast();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string>('');
   const [videoDuration, setVideoDuration] = useState<number>(0);
@@ -118,7 +121,12 @@ export function VideoToGif() {
 
     if (!ACCEPTED_VIDEO_TYPES.includes(file.type)) {
       setError('Please upload a valid video file (MP4, WebM, or MOV)');
+      showToast('Unsupported file type', 'error');
       return;
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      showToast('Large video - conversion may be slow in your browser', 'info');
     }
 
     setError('');
@@ -132,7 +140,7 @@ export function VideoToGif() {
 
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
-  }, [videoUrl]);
+  }, [videoUrl, showToast]);
 
   const handleVideoLoad = useCallback(() => {
     const video = videoRef.current;
@@ -284,14 +292,17 @@ export function VideoToGif() {
 
       setProgress(100);
       setProgressStatus('Complete!');
+      showToast('GIF created successfully', 'success');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during conversion');
+      const message = err instanceof Error ? err.message : 'An error occurred during conversion';
+      setError(message);
       setProgress(0);
       setProgressStatus('');
+      showToast(message, 'error');
     } finally {
       setIsConverting(false);
     }
-  }, [videoFile, extractFrames, settings, gifUrl]);
+  }, [videoFile, extractFrames, settings, gifUrl, showToast]);
 
   const handleDownload = useCallback(() => {
     if (!gifBlob || !videoFile) return;
@@ -302,7 +313,8 @@ export function VideoToGif() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [gifBlob, gifUrl, videoFile]);
+    showToast('GIF downloaded', 'success');
+  }, [gifBlob, gifUrl, videoFile, showToast]);
 
   const handleReset = useCallback(() => {
     if (videoUrl) URL.revokeObjectURL(videoUrl);
@@ -370,20 +382,7 @@ export function VideoToGif() {
             className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-slate-700/30 transition-all"
           >
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <svg
-                className="w-12 h-12 text-slate-400 mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
+              <UploadCloud className="w-12 h-12 text-slate-400 mb-4" strokeWidth={1.5} aria-hidden="true" />
               <p className="mb-2 text-lg text-slate-300">
                 <span className="font-semibold text-blue-400">Click to upload</span> or drag and drop
               </p>
@@ -403,20 +402,7 @@ export function VideoToGif() {
           aria-live="polite"
         >
           <div className="flex items-center gap-2">
-            <svg
-              className="w-5 h-5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+            <AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
             <span>{error}</span>
           </div>
         </div>
@@ -647,22 +633,7 @@ export function VideoToGif() {
                 disabled={isConverting || !videoFile}
                 isLoading={isConverting}
                 size="lg"
-                leftIcon={
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                }
+                leftIcon={<RefreshCw className="w-5 h-5" aria-hidden="true" />}
               >
                 {isConverting ? 'Converting...' : 'Convert to GIF'}
               </Button>
@@ -670,22 +641,7 @@ export function VideoToGif() {
               <Button
                 onClick={handleDownload}
                 size="lg"
-                leftIcon={
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                }
+                leftIcon={<Download className="w-5 h-5" aria-hidden="true" />}
               >
                 Download GIF
               </Button>

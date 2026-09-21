@@ -2,8 +2,10 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { UploadCloud, Loader2, Trash2, ImageOff, Download } from 'lucide-react';
 import { Button } from '../../common/Button';
 import { ProgressBar } from '../../common/ProgressBar';
+import { useToast } from '../../common/Toast';
 
 // Types
 type InputFormat = 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif' | 'image/bmp' | 'image/tiff';
@@ -78,6 +80,7 @@ function checkAvifSupport(): boolean {
 }
 
 export function FormatConverter() {
+  const { showToast } = useToast();
   const [images, setImages] = useState<ImageFile[]>([]);
   const [settings, setSettings] = useState<ConversionSettings>({
     outputFormat: 'webp',
@@ -118,26 +121,17 @@ export function FormatConverter() {
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    const files = Array.from(e.dataTransfer.files).filter((file) =>
-      SUPPORTED_INPUT_FORMATS.includes(file.type as InputFormat)
-    );
-    addFiles(files);
-  }, []);
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      addFiles(files);
-    }
-  }, []);
-
   const addFiles = useCallback((files: File[]) => {
-    const newImages: ImageFile[] = files.map((file) => ({
+    const validFiles = files.filter((file) => SUPPORTED_INPUT_FORMATS.includes(file.type as InputFormat));
+    const rejected = files.length - validFiles.length;
+    if (rejected > 0) {
+      showToast(
+        `Skipped ${rejected} unsupported file${rejected > 1 ? 's' : ''} - use PNG, JPG, WebP, GIF, BMP or TIFF`,
+        'error'
+      );
+    }
+
+    const newImages: ImageFile[] = validFiles.map((file) => ({
       id: generateId(),
       file,
       originalUrl: URL.createObjectURL(file),
@@ -149,8 +143,23 @@ export function FormatConverter() {
       progress: 0,
       error: null,
     }));
-    setImages((prev) => [...prev, ...newImages]);
-  }, []);
+    if (newImages.length > 0) {
+      setImages((prev) => [...prev, ...newImages]);
+    }
+  }, [showToast]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    addFiles(Array.from(e.dataTransfer.files));
+  }, [addFiles]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      addFiles(Array.from(e.target.files));
+    }
+  }, [addFiles]);
 
   const removeImage = useCallback((id: string) => {
     setImages((prev) => {
@@ -313,7 +322,10 @@ export function FormatConverter() {
     }
 
     setIsConverting(false);
-  }, [images, convertImage]);
+    if (!abortControllerRef.current?.signal.aborted) {
+      showToast(`Converted ${pendingImages.length} image${pendingImages.length > 1 ? 's' : ''}`, 'success');
+    }
+  }, [images, convertImage, showToast]);
 
   const cancelConversion = useCallback(() => {
     if (abortControllerRef.current) {
@@ -330,7 +342,8 @@ export function FormatConverter() {
     const fileName = `${originalName}.${extension}`;
 
     saveAs(img.convertedBlob, fileName);
-  }, [settings.outputFormat]);
+    showToast(`Downloaded ${fileName}`, 'success');
+  }, [settings.outputFormat, showToast]);
 
   const downloadAll = useCallback(async () => {
     const convertedImages = images.filter((img) => img.convertedBlob);
@@ -354,7 +367,8 @@ export function FormatConverter() {
 
     const content = await zip.generateAsync({ type: 'blob' });
     saveAs(content, `converted-images-${Date.now()}.zip`);
-  }, [images, settings.outputFormat, downloadSingle]);
+    showToast(`Downloaded ${convertedImages.length} images as .zip`, 'success');
+  }, [images, settings.outputFormat, downloadSingle, showToast]);
 
   const hasConvertedImages = images.some((img) => img.status === 'done');
   const hasPendingImages = images.some((img) => img.status === 'pending' || img.status === 'error');
@@ -394,20 +408,7 @@ export function FormatConverter() {
           aria-hidden="true"
         />
         <div className="flex flex-col items-center gap-3">
-          <svg
-            className="h-12 w-12 text-gray-400 dark:text-gray-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+          <UploadCloud className="h-12 w-12 text-gray-400 dark:text-gray-500" strokeWidth={1.5} aria-hidden="true" />
           <div>
             <p className="text-lg font-medium text-gray-900 dark:text-white">
               Drop images here or click to upload
@@ -690,26 +691,7 @@ export function FormatConverter() {
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-gray-900">
                         {img.status === 'converting' ? (
-                          <svg
-                            className="h-8 w-8 animate-spin text-blue-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                            />
-                          </svg>
+                          <Loader2 className="h-8 w-8 animate-spin text-blue-500" aria-hidden="true" />
                         ) : img.status === 'error' ? (
                           <span className="text-red-500">Error</span>
                         ) : (
@@ -783,6 +765,7 @@ export function FormatConverter() {
                         size="sm"
                         variant="secondary"
                         onClick={() => downloadSingle(img)}
+                        leftIcon={<Download className="w-3.5 h-3.5" />}
                       >
                         Download
                       </Button>
@@ -793,20 +776,7 @@ export function FormatConverter() {
                       onClick={() => removeImage(img.id)}
                       aria-label={`Remove ${img.file.name}`}
                     >
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -819,20 +789,7 @@ export function FormatConverter() {
       {/* Empty State */}
       {images.length === 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
-          <svg
-            className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+          <ImageOff className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500" strokeWidth={1} aria-hidden="true" />
           <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             No images yet
           </h3>
