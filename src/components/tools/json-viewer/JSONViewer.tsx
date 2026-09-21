@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ChevronDown,
   ChevronRight,
@@ -278,7 +279,7 @@ export function JSONViewer() {
     ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900 flex flex-col'
     : 'relative';
 
-  return (
+  const content = (
     <div ref={containerRef} className={containerClasses}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 p-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -500,6 +501,10 @@ export function JSONViewer() {
       )}
     </div>
   );
+
+  // Escape the ToolLayout card's backdrop-blur (which creates a containing block for
+  // `position: fixed`) so the fullscreen overlay actually covers the whole viewport.
+  return isFullscreen ? createPortal(content, document.body) : content;
 }
 
 export default JSONViewer;

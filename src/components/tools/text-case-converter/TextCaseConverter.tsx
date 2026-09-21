@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import { Undo2, Redo2, ArrowUpDown, Copy, Check, Trash2, Maximize2, Minimize2 } from 'lucide-react';
 import { useFullscreen } from '../../../hooks/useFullscreen';
@@ -272,7 +273,7 @@ export function TextCaseConverter() {
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
 
-  return (
+  const content = (
     <div
       className={clsx(
         isFullscreen
@@ -499,6 +500,10 @@ export function TextCaseConverter() {
       </div>
     </div>
   );
+
+  // Escape the ToolLayout card's backdrop-blur (which creates a containing block for
+  // `position: fixed`) so the fullscreen overlay actually covers the whole viewport.
+  return isFullscreen ? createPortal(content, document.body) : content;
 }
 
 export default TextCaseConverter;
