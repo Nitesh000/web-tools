@@ -33,6 +33,7 @@ import BlogArticlePage from "./pages/BlogArticlePage";
 // Static pages
 import AboutPage from "./pages/AboutPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import { ScrollToTop } from './components/common/ScrollToTop';
 import TermsPage from "./pages/TermsPage";
 
 // Root layout component
@@ -43,6 +44,7 @@ function Root() {
         <ToastProvider>
           <ErrorBoundary>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+              <ScrollToTop />
               <Navbar />
               <Outlet />
             </div>
