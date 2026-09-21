@@ -1,18 +1,25 @@
-import { useEffect, useState, useCallback, createContext, useContext, type ReactNode } from 'react';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  createContext,
+  useContext,
+  type ReactNode,
+} from "react";
 
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
-const THEME_STORAGE_KEY = 'web-tools-theme';
-const DEFAULT_THEME: Theme = 'dark';
+const THEME_STORAGE_KEY = "web-tools-theme";
+const DEFAULT_THEME: Theme = "light";
 
 function getStoredTheme(): Theme {
-  if (typeof window === 'undefined') return DEFAULT_THEME;
+  if (typeof window === "undefined") return DEFAULT_THEME;
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  return stored === 'light' || stored === 'dark' ? stored : DEFAULT_THEME;
+  return stored === "light" || stored === "dark" ? stored : DEFAULT_THEME;
 }
 
 function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle('dark', theme === 'dark');
+  document.documentElement.classList.toggle("dark", theme === "dark");
 }
 
 interface ThemeContextValue {
@@ -34,7 +41,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    setTheme(theme === "dark" ? "light" : "dark");
   }, [theme, setTheme]);
 
   // Sync with the storage-read value once mounted (handles SSG hydration)
@@ -43,7 +50,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, isDark: theme === 'dark', setTheme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{ theme, isDark: theme === "dark", setTheme, toggleTheme }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -52,7 +61,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 }

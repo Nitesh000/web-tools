@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { JSONFormatter } from '../components/tools/json-formatter/JSONFormatter';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'JSON Formatter & Validator - Free Online JSON Beautifier | Web Tools Suite',
@@ -25,7 +26,7 @@ const seoMeta = {
     'json diff',
     'free json formatter',
   ],
-  canonicalUrl: 'https://webtools.dev/json-formatter',
+  canonicalUrl: `${SITE_CONFIG.url}/json-formatter`,
 };
 
 const howToUseSteps = [

@@ -1,5 +1,5 @@
 # Web Tools Suite - Robots.txt
-# https://webtools.suite
+# https://web-tools.thecodingant.in
 
 # Allow all crawlers to access the site
 User-agent: *
@@ -21,10 +21,10 @@ Disallow: /assets/*.map$
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://webtools.suite/sitemap.xml
+Sitemap: https://web-tools.thecodingant.in/sitemap.xml
 
 # Additional sitemaps (if any)
-# Sitemap: https://webtools.suite/sitemap-blog.xml
+# Sitemap: https://web-tools.thecodingant.in/sitemap-blog.xml
 
 # Google-specific settings
 User-agent: Googlebot

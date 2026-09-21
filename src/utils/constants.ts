@@ -1,3 +1,5 @@
+import { URLS } from '../data/urls.constants';
+
 // Tool definitions with icons, paths, and colors
 export interface ToolDefinition {
   id: string;
@@ -206,7 +208,7 @@ export const SITE_CONFIG = {
   name: 'Web Tools Suite',
   tagline: 'Free Online Tools for Everyone',
   description: 'A collection of free, privacy-focused online tools. All processing happens in your browser - your files never leave your device.',
-  url: 'https://webtools.example.com',
+  url: URLS.baseCanonicalUrl,
   twitterHandle: '@webtools',
 };
 

@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { QRGenerator } from '../components/tools/qr-generator/QRGenerator';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'QR Code Generator - Free Custom QR Code Maker Online | Web Tools Suite',
@@ -21,7 +22,7 @@ const seoMeta = {
     'email qr code',
     'phone qr code',
   ],
-  canonicalUrl: 'https://webtools.suite/qr-generator',
+  canonicalUrl: `${SITE_CONFIG.url}/qr-generator`,
 };
 
 const howToUseSteps = [

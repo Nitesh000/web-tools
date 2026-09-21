@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { VideoToGif } from '../components/tools/video-to-gif/VideoToGif';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'Video to GIF Converter - Free Online MP4 to GIF Tool | Web Tools Suite',
@@ -21,7 +22,7 @@ const seoMeta = {
     'video converter',
     'gif animation',
   ],
-  canonicalUrl: 'https://webtools.suite/video-to-gif',
+  canonicalUrl: `${SITE_CONFIG.url}/video-to-gif`,
 };
 
 const howToUseSteps = [

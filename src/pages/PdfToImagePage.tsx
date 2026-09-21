@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { PdfToImage } from '../components/tools/pdf-to-image/PdfToImage';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'PDF to Image Converter - Convert PDF to JPG, PNG, WebP Free Online',
@@ -27,7 +28,7 @@ const seoMeta = {
     'pdf to image no signup',
     'browser pdf converter',
   ],
-  canonicalUrl: 'https://webtools.dev/pdf-to-image',
+  canonicalUrl: `${SITE_CONFIG.url}/pdf-to-image`,
 };
 
 const howToUseSteps = [

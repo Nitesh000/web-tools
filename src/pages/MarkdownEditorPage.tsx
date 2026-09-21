@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { MarkdownEditor } from '../components/tools/markdown-editor/MarkdownEditor';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'Markdown Editor Online - Free MD Editor with Live Preview | Web Tools Suite',
@@ -45,7 +46,7 @@ const seoMeta = {
     'markdown blog editor',
     'markdown documentation editor',
   ],
-  canonicalUrl: 'https://webtools.dev/markdown-editor',
+  canonicalUrl: `${SITE_CONFIG.url}/markdown-editor`,
 };
 
 const howToUseSteps = [

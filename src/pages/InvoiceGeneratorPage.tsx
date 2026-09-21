@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { InvoiceGenerator } from '../components/tools/invoice-generator/InvoiceGenerator';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'Invoice Generator - Free Online Professional Invoice Maker | Web Tools Suite',
@@ -25,7 +26,7 @@ const seoMeta = {
     'small business invoice',
     'contractor invoice',
   ],
-  canonicalUrl: 'https://webtools.dev/invoice-generator',
+  canonicalUrl: `${SITE_CONFIG.url}/invoice-generator`,
 };
 
 const howToUseSteps = [

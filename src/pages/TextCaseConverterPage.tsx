@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { TextCaseConverter } from '../components/tools/text-case-converter/TextCaseConverter';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'Text Case Converter - Free Online Case Changer Tool | Web Tools Suite',
@@ -21,7 +22,7 @@ const seoMeta = {
     'online text tool',
     'free case converter',
   ],
-  canonicalUrl: 'https://webtools.dev/text-case-converter',
+  canonicalUrl: `${SITE_CONFIG.url}/text-case-converter`,
 };
 
 const howToUseSteps = [

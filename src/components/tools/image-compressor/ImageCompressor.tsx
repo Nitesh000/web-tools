@@ -1,17 +1,27 @@
-import { useState, useCallback, useRef, type DragEvent, type ChangeEvent } from 'react';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-import { UploadCloud, Download, Trash2 } from 'lucide-react';
-import { useImageCompression, type CompressionOptions, type ImageFile } from '../../../hooks/useImageCompression';
-import { Button } from '../../common/Button';
-import { useToast } from '../../common/Toast';
+import {
+  useState,
+  useCallback,
+  useRef,
+  type DragEvent,
+  type ChangeEvent,
+} from "react";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import { UploadCloud, Download, Trash2 } from "lucide-react";
+import {
+  useImageCompression,
+  type CompressionOptions,
+  type ImageFile,
+} from "../../../hooks/useImageCompression";
+import { Button } from "../../common/Button";
+import { useToast } from "../../common/Toast";
 
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
 const calculateReduction = (original: number, compressed: number): number => {
@@ -31,49 +41,49 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
       : null;
 
   return (
-    <div className="bg-slate-700/50 rounded-xl border border-slate-600/50 overflow-hidden">
+    <div className="overflow-hidden rounded-xl border bg-slate-700/50 border-slate-600/50">
       {/* Preview Images */}
       <div className="grid grid-cols-2 gap-2 p-3">
         <div className="space-y-2">
-          <p className="text-xs text-slate-400 text-center">Original</p>
-          <div className="aspect-square bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center">
+          <p className="text-xs text-center text-slate-400">Original</p>
+          <div className="flex overflow-hidden justify-center items-center rounded-lg aspect-square bg-slate-800">
             <img
               src={image.originalPreview}
               alt="Original"
-              className="max-w-full max-h-full object-contain"
+              className="object-contain max-w-full max-h-full"
             />
           </div>
-          <p className="text-xs text-slate-300 text-center">
+          <p className="text-xs text-center text-slate-300">
             {formatFileSize(image.originalSize)}
           </p>
         </div>
         <div className="space-y-2">
-          <p className="text-xs text-slate-400 text-center">Compressed</p>
-          <div className="aspect-square bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center">
+          <p className="text-xs text-center text-slate-400">Compressed</p>
+          <div className="flex overflow-hidden justify-center items-center rounded-lg aspect-square bg-slate-800">
             {image.compressedPreview ? (
               <img
                 src={image.compressedPreview}
                 alt="Compressed"
-                className="max-w-full max-h-full object-contain"
+                className="object-contain max-w-full max-h-full"
               />
             ) : (
-              <div className="text-slate-500 text-xs text-center px-2">
-                {image.status === 'compressing' ? 'Compressing...' : 'Pending'}
+              <div className="px-2 text-xs text-center text-slate-500">
+                {image.status === "compressing" ? "Compressing..." : "Pending"}
               </div>
             )}
           </div>
-          <p className="text-xs text-slate-300 text-center">
+          <p className="text-xs text-center text-slate-300">
             {image.compressedSize !== null
               ? formatFileSize(image.compressedSize)
-              : '-'}
+              : "-"}
           </p>
         </div>
       </div>
 
       {/* Progress Bar */}
-      {image.status === 'compressing' && (
+      {image.status === "compressing" && (
         <div className="px-3 pb-2">
-          <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="overflow-hidden h-2 rounded-full bg-slate-800">
             <div
               className="h-full bg-blue-500 transition-all duration-300"
               style={{ width: `${image.progress}%` }}
@@ -83,7 +93,7 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
               aria-valuemax={100}
             />
           </div>
-          <p className="text-xs text-slate-400 text-center mt-1">
+          <p className="mt-1 text-xs text-center text-slate-400">
             {image.progress}%
           </p>
         </div>
@@ -91,28 +101,28 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
 
       {/* File Info & Actions */}
       <div className="p-3 border-t border-slate-600/50">
-        <p className="text-sm text-white truncate mb-2" title={image.file.name}>
+        <p className="mb-2 text-sm text-white truncate" title={image.file.name}>
           {image.file.name}
         </p>
 
         {/* Status & Reduction */}
-        <div className="flex items-center justify-between mb-3">
-          {image.status === 'completed' && reduction !== null && (
+        <div className="flex justify-between items-center mb-3">
+          {image.status === "completed" && reduction !== null && (
             <span
               className={`text-sm font-medium ${
-                reduction > 0 ? 'text-green-400' : 'text-yellow-400'
+                reduction > 0 ? "text-green-400" : "text-yellow-400"
               }`}
             >
-              {reduction > 0 ? `-${reduction}%` : 'No reduction'}
+              {reduction > 0 ? `-${reduction}%` : "No reduction"}
             </span>
           )}
-          {image.status === 'error' && (
+          {image.status === "error" && (
             <span className="text-sm text-red-400">{image.error}</span>
           )}
-          {image.status === 'pending' && (
+          {image.status === "pending" && (
             <span className="text-sm text-slate-400">Ready to compress</span>
           )}
-          {image.status === 'compressing' && (
+          {image.status === "compressing" && (
             <span className="text-sm text-blue-400">Compressing...</span>
           )}
         </div>
@@ -128,7 +138,7 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
           >
             Remove
           </Button>
-          {image.status === 'completed' && image.compressedFile && (
+          {image.status === "completed" && image.compressedFile && (
             <Button
               variant="primary"
               size="sm"
@@ -163,7 +173,7 @@ export function ImageCompressor() {
     quality: 80,
     maxWidth: 1920,
     maxHeight: 1080,
-    outputFormat: 'original',
+    outputFormat: "original",
   });
 
   const [isDragging, setIsDragging] = useState(false);
@@ -186,17 +196,20 @@ export function ImageCompressor() {
     e.stopPropagation();
   }, []);
 
-  const handleAddFiles = useCallback((files: FileList | File[]) => {
-    const { added, rejected } = addImages(files);
-    if (rejected > 0) {
-      showToast(
-        `Skipped ${rejected} file${rejected > 1 ? 's' : ''} - only image files are supported`,
-        'error'
-      );
-    } else if (added > 0) {
-      showToast(`Added ${added} image${added > 1 ? 's' : ''}`, 'success');
-    }
-  }, [addImages, showToast]);
+  const handleAddFiles = useCallback(
+    (files: FileList | File[]) => {
+      const { added, rejected } = addImages(files);
+      if (rejected > 0) {
+        showToast(
+          `Skipped ${rejected} file${rejected > 1 ? "s" : ""} - only image files are supported`,
+          "error",
+        );
+      } else if (added > 0) {
+        showToast(`Added ${added} image${added > 1 ? "s" : ""}`, "success");
+      }
+    },
+    [addImages, showToast],
+  );
 
   const handleDrop = useCallback(
     (e: DragEvent<HTMLDivElement>) => {
@@ -209,7 +222,7 @@ export function ImageCompressor() {
         handleAddFiles(files);
       }
     },
-    [handleAddFiles]
+    [handleAddFiles],
   );
 
   const handleFileSelect = useCallback(
@@ -219,21 +232,24 @@ export function ImageCompressor() {
         handleAddFiles(files);
       }
       // Reset input value to allow selecting the same file again
-      e.target.value = '';
+      e.target.value = "";
     },
-    [handleAddFiles]
+    [handleAddFiles],
   );
 
-  const handleDownloadSingle = useCallback((image: ImageFile) => {
-    if (image.compressedFile) {
-      saveAs(image.compressedFile, image.compressedFile.name);
-      showToast(`Downloaded ${image.compressedFile.name}`, 'success');
-    }
-  }, [showToast]);
+  const handleDownloadSingle = useCallback(
+    (image: ImageFile) => {
+      if (image.compressedFile) {
+        saveAs(image.compressedFile, image.compressedFile.name);
+        showToast(`Downloaded ${image.compressedFile.name}`, "success");
+      }
+    },
+    [showToast],
+  );
 
   const handleDownloadAll = useCallback(async () => {
     const completedImages = images.filter(
-      (img) => img.status === 'completed' && img.compressedFile
+      (img) => img.status === "completed" && img.compressedFile,
     );
 
     if (completedImages.length === 0) return;
@@ -251,29 +267,32 @@ export function ImageCompressor() {
       }
     });
 
-    const content = await zip.generateAsync({ type: 'blob' });
-    saveAs(content, 'compressed-images.zip');
-    showToast(`Downloaded ${completedImages.length} images as .zip`, 'success');
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, "compressed-images.zip");
+    showToast(`Downloaded ${completedImages.length} images as .zip`, "success");
   }, [images, handleDownloadSingle, showToast]);
 
   const completedCount = images.filter(
-    (img) => img.status === 'completed'
+    (img) => img.status === "completed",
   ).length;
-  const totalOriginalSize = images.reduce((sum, img) => sum + img.originalSize, 0);
+  const totalOriginalSize = images.reduce(
+    (sum, img) => sum + img.originalSize,
+    0,
+  );
   const totalCompressedSize = images.reduce(
     (sum, img) => sum + (img.compressedSize || 0),
-    0
+    0,
   );
 
   return (
     <div className="space-y-6">
       {/* Compression Options */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Quality Slider */}
         <div className="space-y-2">
           <label
             htmlFor="quality-slider"
-            className="block text-sm font-medium text-slate-300"
+            className="block text-sm font-medium text-slate-700"
           >
             Quality: {options.quality}%
           </label>
@@ -289,7 +308,7 @@ export function ImageCompressor() {
                 quality: Number(e.target.value),
               }))
             }
-            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-700 accent-blue-500"
             aria-valuemin={1}
             aria-valuemax={100}
             aria-valuenow={options.quality}
@@ -304,7 +323,7 @@ export function ImageCompressor() {
         <div className="space-y-2">
           <label
             htmlFor="max-width"
-            className="block text-sm font-medium text-slate-300"
+            className="block text-sm font-medium text-slate-700"
           >
             Max Width (px)
           </label>
@@ -317,10 +336,16 @@ export function ImageCompressor() {
             onChange={(e) =>
               setOptions((prev) => ({
                 ...prev,
-                maxWidth: Math.min(MAX_DIMENSION, Math.max(MIN_DIMENSION, Number(e.target.value) || MIN_DIMENSION)),
+                maxWidth: Math.min(
+                  MAX_DIMENSION,
+                  Math.max(
+                    MIN_DIMENSION,
+                    Number(e.target.value) || MIN_DIMENSION,
+                  ),
+                ),
               }))
             }
-            className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="py-2 px-3 w-full text-white rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 bg-slate-700 border-slate-600"
           />
         </div>
 
@@ -328,7 +353,7 @@ export function ImageCompressor() {
         <div className="space-y-2">
           <label
             htmlFor="max-height"
-            className="block text-sm font-medium text-slate-300"
+            className="block text-sm font-medium text-slate-700"
           >
             Max Height (px)
           </label>
@@ -341,10 +366,16 @@ export function ImageCompressor() {
             onChange={(e) =>
               setOptions((prev) => ({
                 ...prev,
-                maxHeight: Math.min(MAX_DIMENSION, Math.max(MIN_DIMENSION, Number(e.target.value) || MIN_DIMENSION)),
+                maxHeight: Math.min(
+                  MAX_DIMENSION,
+                  Math.max(
+                    MIN_DIMENSION,
+                    Number(e.target.value) || MIN_DIMENSION,
+                  ),
+                ),
               }))
             }
-            className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="py-2 px-3 w-full text-white rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 bg-slate-700 border-slate-600"
           />
         </div>
 
@@ -352,7 +383,7 @@ export function ImageCompressor() {
         <div className="space-y-2">
           <label
             htmlFor="output-format"
-            className="block text-sm font-medium text-slate-300"
+            className="block text-sm font-medium text-slate-700"
           >
             Output Format
           </label>
@@ -362,10 +393,11 @@ export function ImageCompressor() {
             onChange={(e) =>
               setOptions((prev) => ({
                 ...prev,
-                outputFormat: e.target.value as CompressionOptions['outputFormat'],
+                outputFormat: e.target
+                  .value as CompressionOptions["outputFormat"],
               }))
             }
-            className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="py-2 px-3 w-full text-white rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 bg-slate-700 border-slate-600"
           >
             <option value="original">Keep Original</option>
             <option value="jpeg">JPEG</option>
@@ -383,7 +415,7 @@ export function ImageCompressor() {
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             fileInputRef.current?.click();
           }
@@ -396,8 +428,8 @@ export function ImageCompressor() {
           transition-all duration-200
           ${
             isDragging
-              ? 'border-blue-500 bg-blue-500/10'
-              : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
+              ? "border-blue-500 bg-blue-500/10"
+              : "border-slate-600 hover:border-slate-500 hover:bg-slate-700/30"
           }
         `}
       >
@@ -410,11 +442,15 @@ export function ImageCompressor() {
           className="hidden"
           aria-hidden="true"
         />
-        <UploadCloud className="w-12 h-12 mx-auto text-slate-400 mb-4" strokeWidth={1.5} aria-hidden="true" />
-        <p className="text-lg text-slate-300 mb-2">
+        <UploadCloud
+          className="mx-auto mb-4 w-12 h-12 text-slate-400"
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
+        <p className="mb-2 text-lg text-slate-300">
           {isDragging
-            ? 'Drop images here'
-            : 'Drag & drop images here, or click to select'}
+            ? "Drop images here"
+            : "Drag & drop images here, or click to select"}
         </p>
         <p className="text-sm text-slate-500">
           Supports JPEG, PNG, WebP, GIF, and more
@@ -429,20 +465,32 @@ export function ImageCompressor() {
             size="lg"
             onClick={() => compressImages(options)}
             isLoading={isCompressing}
-            disabled={isCompressing || images.every((img) => img.status === 'completed')}
+            disabled={
+              isCompressing || images.every((img) => img.status === "completed")
+            }
           >
             {isCompressing
-              ? 'Compressing...'
-              : `Compress ${images.filter((img) => img.status !== 'completed').length} Image(s)`}
+              ? "Compressing..."
+              : `Compress ${images.filter((img) => img.status !== "completed").length} Image(s)`}
           </Button>
 
           {completedCount > 0 && (
-            <Button variant="secondary" size="lg" onClick={handleDownloadAll} leftIcon={<Download className="w-4 h-4" />}>
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={handleDownloadAll}
+              leftIcon={<Download className="w-4 h-4" />}
+            >
               Download All ({completedCount})
             </Button>
           )}
 
-          <Button variant="outline" size="lg" onClick={clearImages} leftIcon={<Trash2 className="w-4 h-4" />}>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={clearImages}
+            leftIcon={<Trash2 className="w-4 h-4" />}
+          >
             Clear All
           </Button>
         </div>
@@ -450,7 +498,7 @@ export function ImageCompressor() {
 
       {/* Stats Summary */}
       {completedCount > 0 && (
-        <div className="bg-slate-700/30 rounded-lg p-4 text-center">
+        <div className="p-4 text-center rounded-lg bg-slate-700/30">
           <div className="grid grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-slate-400">Original Total</p>
@@ -469,7 +517,7 @@ export function ImageCompressor() {
               <p className="text-lg font-semibold text-green-400">
                 {totalOriginalSize > 0
                   ? `${calculateReduction(totalOriginalSize, totalCompressedSize)}%`
-                  : '0%'}
+                  : "0%"}
               </p>
             </div>
           </div>
@@ -478,7 +526,7 @@ export function ImageCompressor() {
 
       {/* Image Grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {images.map((image) => (
             <ImageCard
               key={image.id}
@@ -492,7 +540,7 @@ export function ImageCompressor() {
 
       {/* Empty State */}
       {images.length === 0 && (
-        <div className="text-center py-8 text-slate-500">
+        <div className="py-8 text-center text-slate-500">
           <p>No images added yet. Upload some images to get started!</p>
         </div>
       )}

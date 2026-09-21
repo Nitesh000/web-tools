@@ -3,6 +3,8 @@
  * Comprehensive metadata for all tools optimized for search engine ranking
  */
 
+import { URLS } from '../data/urls.constants';
+
 export interface FAQItem {
   question: string;
   answer: string;
@@ -29,7 +31,7 @@ export interface SiteMetaData {
 
 export const siteMetaData: SiteMetaData = {
   siteName: 'Web Tools Suite',
-  siteUrl: 'https://webtools.suite',
+  siteUrl: URLS.baseCanonicalUrl,
   defaultOgImage: '/og-default.png',
   twitterHandle: '@webtoolssuite',
   locale: 'en_US',

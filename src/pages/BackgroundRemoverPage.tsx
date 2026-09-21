@@ -1,7 +1,7 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { BackgroundRemover } from '../components/tools/background-remover/BackgroundRemover';
 import { SEOHead } from '../seo/SEOHead';
-import { toolsMetaData } from '../seo/meta-data';
+import { siteMetaData, toolsMetaData } from '../seo/meta-data';
 
 const toolMeta = toolsMetaData['background-remover'];
 
@@ -9,7 +9,7 @@ const seoMeta = {
   title: toolMeta.title,
   description: toolMeta.description,
   keywords: toolMeta.keywords,
-  canonicalUrl: 'https://webtools.suite/background-remover',
+  canonicalUrl: `${siteMetaData.siteUrl}/background-remover`,
   ogImage: toolMeta.ogImage,
 };
 

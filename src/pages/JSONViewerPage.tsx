@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { JSONViewer } from '../components/tools/json-viewer/JSONViewer';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'JSON Viewer Online - Free JSON Tree Viewer & Explorer | Web Tools Suite',
@@ -37,7 +38,7 @@ const seoMeta = {
     'json expand collapse',
     'json pretty viewer',
   ],
-  canonicalUrl: 'https://webtools.dev/json-viewer',
+  canonicalUrl: `${SITE_CONFIG.url}/json-viewer`,
 };
 
 const howToUseSteps = [

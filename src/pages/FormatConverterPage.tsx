@@ -1,7 +1,7 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { FormatConverter } from '../components/tools/format-converter/FormatConverter';
 import { SEOHead } from '../seo/SEOHead';
-import { toolsMetaData } from '../seo/meta-data';
+import { siteMetaData, toolsMetaData } from '../seo/meta-data';
 
 const toolMeta = toolsMetaData['image-format-converter'];
 
@@ -9,7 +9,7 @@ const seoMeta = {
   title: toolMeta.title,
   description: toolMeta.description,
   keywords: toolMeta.keywords,
-  canonicalUrl: 'https://webtools.suite/format-converter',
+  canonicalUrl: `${siteMetaData.siteUrl}/format-converter`,
   ogImage: toolMeta.ogImage,
 };
 

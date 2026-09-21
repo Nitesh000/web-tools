@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { ColorPicker } from '../components/tools/color-picker/ColorPicker';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'Color Picker - Free Online HEX, RGB, HSL Color Converter | Web Tools Suite',
@@ -25,7 +26,7 @@ const seoMeta = {
     'web colors',
     'tailwind colors',
   ],
-  canonicalUrl: 'https://webtools.dev/color-picker',
+  canonicalUrl: `${SITE_CONFIG.url}/color-picker`,
 };
 
 const howToUseSteps = [

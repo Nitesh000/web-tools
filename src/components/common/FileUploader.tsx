@@ -1,7 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
-import clsx from 'clsx';
-import { Upload, AlertCircle } from 'lucide-react';
-import { useToast } from './Toast';
+import { useCallback, useRef, useState } from "react";
+import clsx from "clsx";
+import { Upload, AlertCircle } from "lucide-react";
+import { useToast } from "./Toast";
 
 interface FileUploaderProps {
   accept?: string;
@@ -14,12 +14,12 @@ interface FileUploaderProps {
 }
 
 export function FileUploader({
-  accept = 'image/*',
+  accept = "image/*",
   maxSize = 50 * 1024 * 1024, // 50MB default
   onFileSelect,
   disabled = false,
   className,
-  label = 'Drop your file here or click to browse',
+  label = "Drop your file here or click to browse",
   hint,
 }: FileUploaderProps) {
   const { showToast } = useToast();
@@ -36,15 +36,15 @@ export function FileUploader({
         const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(0);
         const message = `File size exceeds ${maxSizeMB}MB limit`;
         setError(message);
-        showToast(message, 'error');
+        showToast(message, "error");
         return false;
       }
 
       // Check file type if accept is specified
-      if (accept && accept !== '*') {
-        const acceptedTypes = accept.split(',').map((t) => t.trim());
+      if (accept && accept !== "*") {
+        const acceptedTypes = accept.split(",").map((t) => t.trim());
         const isAccepted = acceptedTypes.some((type) => {
-          if (type.endsWith('/*')) {
+          if (type.endsWith("/*")) {
             const category = type.slice(0, -2);
             return file.type.startsWith(category);
           }
@@ -52,15 +52,15 @@ export function FileUploader({
         });
 
         if (!isAccepted) {
-          setError('File type not supported');
-          showToast('File type not supported', 'error');
+          setError("File type not supported");
+          showToast("File type not supported", "error");
           return false;
         }
       }
 
       return true;
     },
-    [accept, maxSize, showToast]
+    [accept, maxSize, showToast],
   );
 
   const handleFile = useCallback(
@@ -69,7 +69,7 @@ export function FileUploader({
         onFileSelect(file);
       }
     },
-    [validateFile, onFileSelect]
+    [validateFile, onFileSelect],
   );
 
   const handleDragEnter = useCallback(
@@ -80,7 +80,7 @@ export function FileUploader({
         setIsDragging(true);
       }
     },
-    [disabled]
+    [disabled],
   );
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
@@ -107,7 +107,7 @@ export function FileUploader({
         handleFile(files[0]);
       }
     },
-    [disabled, handleFile]
+    [disabled, handleFile],
   );
 
   const handleChange = useCallback(
@@ -117,9 +117,9 @@ export function FileUploader({
         handleFile(files[0]);
       }
       // Reset input so the same file can be selected again
-      e.target.value = '';
+      e.target.value = "";
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleClick = useCallback(() => {
@@ -130,12 +130,12 @@ export function FileUploader({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+      if ((e.key === "Enter" || e.key === " ") && !disabled) {
         e.preventDefault();
         inputRef.current?.click();
       }
     },
-    [disabled]
+    [disabled],
   );
 
   return (
@@ -152,14 +152,14 @@ export function FileUploader({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         className={clsx(
-          'relative flex flex-col items-center justify-center p-8 md:p-12 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200',
+          "relative flex flex-col items-center justify-center p-8 md:p-12 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200",
           {
-            'border-slate-600 bg-slate-800/50 hover:border-blue-500 hover:bg-slate-800':
+            "border-gray-200 bg-white hover:border-blue-500 hover:bg-slate-200":
               !isDragging && !disabled,
-            'border-blue-500 bg-blue-900/20': isDragging && !disabled,
-            'border-slate-700 bg-slate-900/50 cursor-not-allowed opacity-60':
+            "border-blue-500 ": isDragging && !disabled,
+            "border-blue-500 bg-slate-300/50 cursor-not-allowed opacity-60":
               disabled,
-          }
+          },
         )}
       >
         <input
@@ -176,27 +176,27 @@ export function FileUploader({
           {/* Upload Icon */}
           <div
             className={clsx(
-              'w-16 h-16 mb-4 rounded-full flex items-center justify-center transition-colors',
+              "w-16 h-16 mb-4 rounded-full flex items-center justify-center transition-colors",
               {
-                'bg-slate-700': !isDragging,
-                'bg-blue-600': isDragging,
-              }
+                "bg-slate-300": !isDragging,
+                "bg-blue-600": isDragging,
+              },
             )}
           >
             <Upload
-              className={clsx('w-8 h-8 transition-colors', {
-                'text-slate-400': !isDragging,
-                'text-white': isDragging,
+              className={clsx("w-8 h-8 transition-colors", {
+                "text-slate-400": !isDragging,
+                "text-white": isDragging,
               })}
               aria-hidden="true"
             />
           </div>
 
           {/* Label */}
-          <p className="text-lg font-medium text-white mb-2">{label}</p>
+          <p className="mb-2 text-lg font-medium text-gray-700">{label}</p>
 
           {/* Hint */}
-          {hint && <p className="text-sm text-slate-400">{hint}</p>}
+          {hint && <p className="text-sm text-slate-600">{hint}</p>}
         </div>
       </div>
 
@@ -204,9 +204,9 @@ export function FileUploader({
       {error && (
         <div
           role="alert"
-          className="mt-3 flex items-center gap-2 text-red-400 text-sm"
+          className="flex gap-2 items-center mt-3 text-sm text-red-400"
         >
-          <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+          <AlertCircle className="flex-shrink-0 w-4 h-4" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { ToolLayout } from '../components/common/ToolLayout';
 import { PasswordGenerator } from '../components/tools/password-generator/PasswordGenerator';
+import { SITE_CONFIG } from '../utils/constants';
 
 const seoMeta = {
   title: 'Password Generator - Free Secure Password Creator Online | Web Tools Suite',
@@ -21,7 +22,7 @@ const seoMeta = {
     'password strength',
     'entropy calculator',
   ],
-  canonicalUrl: 'https://webtools.suite/password-generator',
+  canonicalUrl: `${SITE_CONFIG.url}/password-generator`,
 };
 
 const howToUseSteps = [

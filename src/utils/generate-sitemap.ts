@@ -15,8 +15,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { URLS } from '../data/urls.constants';
+
 // Site configuration
-const SITE_URL = 'https://webtools.suite';
+const SITE_URL = URLS.baseCanonicalUrl;
 const PUBLIC_DIR = path.resolve(__dirname, '../../public');
 
 // Tool definitions (matching constants.ts)
