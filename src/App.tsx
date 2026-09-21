@@ -3,6 +3,8 @@ import { Outlet } from 'react-router-dom'
 import type { RouteRecord } from 'vite-react-ssg'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { Navbar } from './components/layouts/Navbar'
+import { ThemeProvider } from './hooks/useTheme'
+import { ToastProvider } from './components/common/Toast'
 
 // Pages - direct imports for SSG pre-rendering
 import HomePage from './pages/HomePage'
@@ -37,12 +39,16 @@ import TermsPage from './pages/TermsPage'
 function Root() {
   return (
     <HelmetProvider>
-      <ErrorBoundary>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-          <Navbar />
-          <Outlet />
-        </div>
-      </ErrorBoundary>
+      <ThemeProvider>
+        <ToastProvider>
+          <ErrorBoundary>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+              <Navbar />
+              <Outlet />
+            </div>
+          </ErrorBoundary>
+        </ToastProvider>
+      </ThemeProvider>
     </HelmetProvider>
   )
 }

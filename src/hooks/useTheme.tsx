@@ -1,105 +1,58 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, createContext, useContext, type ReactNode } from 'react';
 
-export type Theme = 'light' | 'dark' | 'system';
+export type Theme = 'light' | 'dark';
 
 const THEME_STORAGE_KEY = 'web-tools-theme';
-
-function getSystemTheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
+const DEFAULT_THEME: Theme = 'dark';
 
 function getStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof window === 'undefined') return DEFAULT_THEME;
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  if (stored === 'light' || stored === 'dark' || stored === 'system') {
-    return stored;
-  }
-  return 'system';
+  return stored === 'light' || stored === 'dark' ? stored : DEFAULT_THEME;
 }
 
 function applyTheme(theme: Theme) {
-  const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
-  const root = document.documentElement;
-
-  if (effectiveTheme === 'dark') {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
+  document.documentElement.classList.toggle('dark', theme === 'dark');
 }
-
-export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(() => getStoredTheme());
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
-    theme === 'system' ? getSystemTheme() : theme
-  );
-
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-    applyTheme(newTheme);
-    setResolvedTheme(newTheme === 'system' ? getSystemTheme() : newTheme);
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-  }, [resolvedTheme, setTheme]);
-
-  // Apply theme on mount and listen for system changes
-  useEffect(() => {
-    applyTheme(theme);
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const handleChange = () => {
-      if (theme === 'system') {
-        applyTheme('system');
-        setResolvedTheme(getSystemTheme());
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
-
-  return {
-    theme,
-    resolvedTheme,
-    setTheme,
-    toggleTheme,
-    isDark: resolvedTheme === 'dark',
-  };
-}
-
-// Theme provider context for sharing theme state
-import { createContext, useContext, type ReactNode } from 'react';
 
 interface ThemeContextValue {
   theme: Theme;
-  resolvedTheme: 'light' | 'dark';
+  isDark: boolean;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
-  isDark: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const themeValue = useTheme();
+  const [theme, setThemeState] = useState<Theme>(() => getStoredTheme());
+
+  const setTheme = useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    applyTheme(newTheme);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
+
+  // Sync with the storage-read value once mounted (handles SSG hydration)
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   return (
-    <ThemeContext.Provider value={themeValue}>
+    <ThemeContext.Provider value={{ theme, isDark: theme === 'dark', setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
-export function useThemeContext() {
+export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useThemeContext must be used within a ThemeProvider');
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 }

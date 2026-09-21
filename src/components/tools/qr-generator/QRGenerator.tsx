@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import clsx from 'clsx';
+import { QrCode, Loader2 } from 'lucide-react';
 import {
   useQRCode,
   type QRInputType,
@@ -472,7 +473,7 @@ export function QRGenerator() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       {/* Input Section */}
       <div className="space-y-6">
         {/* Input Type Selector */}
@@ -674,7 +675,7 @@ export function QRGenerator() {
       </div>
 
       {/* Preview Section */}
-      <div className="space-y-6">
+      <div className="space-y-6 lg:sticky lg:top-6">
         <div className="bg-slate-700/30 rounded-xl p-6 flex flex-col items-center">
           <h3 className="text-lg font-medium text-white mb-4">Preview</h3>
 
@@ -685,26 +686,7 @@ export function QRGenerator() {
           >
             {isGenerating ? (
               <div className="flex items-center justify-center w-64 h-64">
-                <svg
-                  className="w-8 h-8 animate-spin text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
+                <Loader2 className="w-8 h-8 animate-spin text-blue-500" aria-hidden="true" />
                 <span className="sr-only">Generating QR code...</span>
               </div>
             ) : previewUrl ? (
@@ -716,20 +698,7 @@ export function QRGenerator() {
               />
             ) : (
               <div className="flex flex-col items-center justify-center w-64 h-64 text-slate-400">
-                <svg
-                  className="w-16 h-16 mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                  />
-                </svg>
+                <QrCode className="w-16 h-16 mb-2" strokeWidth={1} aria-hidden="true" />
                 <p className="text-sm">Enter content to generate QR code</p>
               </div>
             )}

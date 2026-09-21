@@ -1,114 +1,9 @@
-import React from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { SEOHead } from '../seo/SEOHead';
 import { ShareButtons } from '../components/common/ShareButtons';
+import { Markdown } from '../components/common/Markdown';
 import { SITE_CONFIG } from '../utils/constants';
 import { getArticleBySlug, getRelatedArticles, type BlogArticle } from './blog/articles';
-
-function ArticleContent({ content }: { content: string }) {
-  // Simple markdown-like rendering for the article content
-  // In a production app, you'd use a proper markdown parser like react-markdown
-  const renderContent = (text: string) => {
-    const lines = text.trim().split('\n');
-    const elements: React.ReactElement[] = [];
-    let currentList: string[] = [];
-    let listKey = 0;
-
-    const flushList = () => {
-      if (currentList.length > 0) {
-        elements.push(
-          <ul key={`list-${listKey++}`} className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300 mb-6">
-            {currentList.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
-        );
-        currentList = [];
-      }
-    };
-
-    lines.forEach((line, index) => {
-      const trimmedLine = line.trim();
-
-      // Skip empty lines
-      if (!trimmedLine) {
-        flushList();
-        return;
-      }
-
-      // Headers
-      if (trimmedLine.startsWith('# ')) {
-        flushList();
-        elements.push(
-          <h1 key={index} className="text-3xl font-bold text-gray-900 dark:text-white mb-6 mt-8">
-            {trimmedLine.slice(2)}
-          </h1>
-        );
-        return;
-      }
-
-      if (trimmedLine.startsWith('## ')) {
-        flushList();
-        elements.push(
-          <h2 key={index} className="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">
-            {trimmedLine.slice(3)}
-          </h2>
-        );
-        return;
-      }
-
-      if (trimmedLine.startsWith('### ')) {
-        flushList();
-        elements.push(
-          <h3 key={index} className="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-6">
-            {trimmedLine.slice(4)}
-          </h3>
-        );
-        return;
-      }
-
-      // List items
-      if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
-        currentList.push(trimmedLine.slice(2));
-        return;
-      }
-
-      // Numbered list items
-      if (/^\d+\.\s/.test(trimmedLine)) {
-        currentList.push(trimmedLine.replace(/^\d+\.\s/, ''));
-        return;
-      }
-
-      // Code blocks (simplified)
-      if (trimmedLine.startsWith('```')) {
-        flushList();
-        return;
-      }
-
-      // Regular paragraphs
-      flushList();
-
-      // Handle inline formatting
-      let formattedLine = trimmedLine
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline">$1</a>')
-        .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-sm">$1</code>');
-
-      elements.push(
-        <p
-          key={index}
-          className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: formattedLine }}
-        />
-      );
-    });
-
-    flushList();
-    return elements;
-  };
-
-  return <div className="prose-lg">{renderContent(content)}</div>;
-}
 
 function RelatedArticleCard({ article }: { article: BlogArticle }) {
   return (
@@ -255,7 +150,7 @@ export default function BlogArticlePage() {
 
             {/* Article Body */}
             <article className="mb-12">
-              <ArticleContent content={article.content} />
+              <Markdown content={article.content} className="prose-lg" />
             </article>
 
             {/* Tags */}

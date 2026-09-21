@@ -1,206 +1,25 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { HexColorPicker, HexColorInput } from 'react-colorful';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { HexAlphaColorPicker, HexColorInput } from 'react-colorful';
 import clsx from 'clsx';
-
-// Color conversion utilities
-interface RGB {
-  r: number;
-  g: number;
-  b: number;
-}
-
-interface HSL {
-  h: number;
-  s: number;
-  l: number;
-}
-
-interface HSV {
-  h: number;
-  s: number;
-  v: number;
-}
-
-interface CMYK {
-  c: number;
-  m: number;
-  y: number;
-  k: number;
-}
+import { Copy, Check, Upload, Star, X, Search, Palette as PaletteIcon } from 'lucide-react';
+import {
+  hexToRgb,
+  rgbToHex,
+  rgbToHsl,
+  hslToRgb,
+  rgbToHsv,
+  rgbToCmyk,
+  getContrastRatio,
+} from '../../../lib/color/conversions';
+import { COLOR_PALETTES, PALETTE_CATEGORIES } from '../../../data/color-palettes';
+import { useToast } from '../../common/Toast';
 
 interface SavedColor {
   hex: string;
-  name?: string;
   savedAt: number;
 }
 
-// Conversion functions
-function hexToRgb(hex: string): RGB {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : { r: 0, g: 0, b: 0 };
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return (
-    '#' +
-    [r, g, b]
-      .map((x) => {
-        const hex = Math.round(Math.max(0, Math.min(255, x))).toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-      })
-      .join('')
-  );
-}
-
-function rgbToHsl(r: number, g: number, b: number): HSL {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h = 0;
-  let s = 0;
-  const l = (max + min) / 2;
-
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-    switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-        break;
-      case g:
-        h = ((b - r) / d + 2) / 6;
-        break;
-      case b:
-        h = ((r - g) / d + 4) / 6;
-        break;
-    }
-  }
-
-  return {
-    h: Math.round(h * 360),
-    s: Math.round(s * 100),
-    l: Math.round(l * 100),
-  };
-}
-
-function hslToRgb(h: number, s: number, l: number): RGB {
-  h /= 360;
-  s /= 100;
-  l /= 100;
-
-  let r, g, b;
-
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p: number, q: number, t: number) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return {
-    r: Math.round(r * 255),
-    g: Math.round(g * 255),
-    b: Math.round(b * 255),
-  };
-}
-
-function rgbToHsv(r: number, g: number, b: number): HSV {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h = 0;
-  const v = max;
-  const d = max - min;
-  const s = max === 0 ? 0 : d / max;
-
-  if (max !== min) {
-    switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-        break;
-      case g:
-        h = ((b - r) / d + 2) / 6;
-        break;
-      case b:
-        h = ((r - g) / d + 4) / 6;
-        break;
-    }
-  }
-
-  return {
-    h: Math.round(h * 360),
-    s: Math.round(s * 100),
-    v: Math.round(v * 100),
-  };
-}
-
-function rgbToCmyk(r: number, g: number, b: number): CMYK {
-  if (r === 0 && g === 0 && b === 0) {
-    return { c: 0, m: 0, y: 0, k: 100 };
-  }
-
-  r /= 255;
-  g /= 255;
-  b /= 255;
-
-  const k = 1 - Math.max(r, g, b);
-  const c = (1 - r - k) / (1 - k);
-  const m = (1 - g - k) / (1 - k);
-  const y = (1 - b - k) / (1 - k);
-
-  return {
-    c: Math.round(c * 100),
-    m: Math.round(m * 100),
-    y: Math.round(y * 100),
-    k: Math.round(k * 100),
-  };
-}
-
-// Calculate relative luminance for WCAG contrast
-function getLuminance(r: number, g: number, b: number): number {
-  const [rs, gs, bs] = [r, g, b].map((c) => {
-    c /= 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  });
-  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-}
-
-function getContrastRatio(hex1: string, hex2: string): number {
-  const rgb1 = hexToRgb(hex1);
-  const rgb2 = hexToRgb(hex2);
-  const l1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
-  const l2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
-  const lighter = Math.max(l1, l2);
-  const darker = Math.min(l1, l2);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-// Palette generation functions
+// Palette generation functions (color harmonies derived from the current base color)
 function getComplementary(hex: string): string[] {
   const rgb = hexToRgb(hex);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
@@ -213,13 +32,10 @@ function getTriadic(hex: string): string[] {
   const rgb = hexToRgb(hex);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
   const colors = [hex];
-
   for (let i = 1; i <= 2; i++) {
-    const newHue = (hsl.h + i * 120) % 360;
-    const newRgb = hslToRgb(newHue, hsl.s, hsl.l);
+    const newRgb = hslToRgb((hsl.h + i * 120) % 360, hsl.s, hsl.l);
     colors.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
   }
-
   return colors;
 }
 
@@ -227,106 +43,69 @@ function getAnalogous(hex: string): string[] {
   const rgb = hexToRgb(hex);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
   const colors = [];
-
   for (let i = -2; i <= 2; i++) {
-    const newHue = (hsl.h + i * 30 + 360) % 360;
-    const newRgb = hslToRgb(newHue, hsl.s, hsl.l);
+    const newRgb = hslToRgb((hsl.h + i * 30 + 360) % 360, hsl.s, hsl.l);
     colors.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
   }
-
   return colors;
 }
 
 function getSplitComplementary(hex: string): string[] {
   const rgb = hexToRgb(hex);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-  const colors = [hex];
-
-  const hue1 = (hsl.h + 150) % 360;
-  const hue2 = (hsl.h + 210) % 360;
-
-  const rgb1 = hslToRgb(hue1, hsl.s, hsl.l);
-  const rgb2 = hslToRgb(hue2, hsl.s, hsl.l);
-
-  colors.push(rgbToHex(rgb1.r, rgb1.g, rgb1.b));
-  colors.push(rgbToHex(rgb2.r, rgb2.g, rgb2.b));
-
-  return colors;
+  const rgb1 = hslToRgb((hsl.h + 150) % 360, hsl.s, hsl.l);
+  const rgb2 = hslToRgb((hsl.h + 210) % 360, hsl.s, hsl.l);
+  return [hex, rgbToHex(rgb1.r, rgb1.g, rgb1.b), rgbToHex(rgb2.r, rgb2.g, rgb2.b)];
 }
 
 function getTetradic(hex: string): string[] {
   const rgb = hexToRgb(hex);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
   const colors = [hex];
-
   for (let i = 1; i <= 3; i++) {
-    const newHue = (hsl.h + i * 90) % 360;
-    const newRgb = hslToRgb(newHue, hsl.s, hsl.l);
+    const newRgb = hslToRgb((hsl.h + i * 90) % 360, hsl.s, hsl.l);
     colors.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
   }
-
   return colors;
 }
 
 function getMonochromatic(hex: string): string[] {
   const rgb = hexToRgb(hex);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-  const colors = [];
-
-  // Generate shades and tints
-  const lightnesses = [10, 25, 40, 55, 70, 85];
-  for (const l of lightnesses) {
+  return [10, 25, 40, 55, 70, 85].map((l) => {
     const newRgb = hslToRgb(hsl.h, hsl.s, l);
-    colors.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
-  }
-
-  return colors;
+    return rgbToHex(newRgb.r, newRgb.g, newRgb.b);
+  });
 }
 
-// Extract colors from image using canvas
-function extractColorsFromImage(
-  imageData: ImageData,
-  numColors: number = 6
-): string[] {
-  const pixels: RGB[] = [];
+// Extract colors from image using canvas (median-cut approximation)
+function extractColorsFromImage(imageData: ImageData, numColors: number = 6): string[] {
+  const pixels: { r: number; g: number; b: number }[] = [];
   const data = imageData.data;
 
-  // Sample pixels (skip some for performance)
   for (let i = 0; i < data.length; i += 16) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
     const a = data[i + 3];
-
-    // Skip transparent pixels
     if (a < 128) continue;
-
-    pixels.push({ r, g, b });
+    pixels.push({ r: data[i], g: data[i + 1], b: data[i + 2] });
   }
 
-  // Simple color quantization using median cut algorithm approximation
   if (pixels.length === 0) return [];
 
-  // Sort by brightness and divide into buckets
-  const buckets: RGB[][] = [pixels];
+  const buckets: (typeof pixels)[] = [pixels];
 
   while (buckets.length < numColors && buckets.length > 0) {
     let largestBucket = buckets[0];
     let largestIndex = 0;
-
     for (let i = 1; i < buckets.length; i++) {
       if (buckets[i].length > largestBucket.length) {
         largestBucket = buckets[i];
         largestIndex = i;
       }
     }
-
     if (largestBucket.length < 2) break;
 
-    // Find the channel with the largest range
     let maxRange = 0;
     let channel: 'r' | 'g' | 'b' = 'r';
-
     for (const c of ['r', 'g', 'b'] as const) {
       const values = largestBucket.map((p) => p[c]);
       const range = Math.max(...values) - Math.min(...values);
@@ -336,14 +115,12 @@ function extractColorsFromImage(
       }
     }
 
-    // Sort by that channel and split
     largestBucket.sort((a, b) => a[channel] - b[channel]);
     const mid = Math.floor(largestBucket.length / 2);
     buckets[largestIndex] = largestBucket.slice(0, mid);
     buckets.push(largestBucket.slice(mid));
   }
 
-  // Get average color of each bucket
   return buckets
     .filter((bucket) => bucket.length > 0)
     .map((bucket) => {
@@ -360,43 +137,94 @@ function extractColorsFromImage(
     .slice(0, numColors);
 }
 
-// Storage key for saved colors
+// 8-digit hex (#rrggbbaa) <-> hex6 + alpha(0-1) helpers, used by HexAlphaColorPicker
+function hex8ToHex6Alpha(hex8: string): { hex6: string; alpha: number } {
+  const clean = hex8.replace('#', '');
+  const hex6 = `#${clean.slice(0, 6).padEnd(6, '0')}`;
+  const alphaHex = clean.slice(6, 8);
+  const alpha = alphaHex ? Math.round((parseInt(alphaHex, 16) / 255) * 100) / 100 : 1;
+  return { hex6, alpha: isNaN(alpha) ? 1 : alpha };
+}
+
+function hex6AlphaToHex8(hex6: string, alpha: number): string {
+  const alphaHex = Math.round(alpha * 255).toString(16).padStart(2, '0');
+  return `${hex6}${alphaHex}`;
+}
+
 const SAVED_COLORS_KEY = 'color-picker-saved-colors';
+const RECENT_LIBRARY_CATEGORY = 'All';
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const { showToast } = useToast();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      showToast(`Copied ${label} to clipboard`, 'success');
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      showToast('Failed to copy', 'error');
+    }
+  }, [value, label, showToast]);
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={clsx(
+        'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+        copied ? 'bg-green-600 text-white' : 'bg-slate-600 text-slate-200 hover:bg-slate-500'
+      )}
+      aria-label={`Copy ${label} value`}
+    >
+      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied ? 'Copied!' : 'Copy'}
+    </button>
+  );
+}
 
 export function ColorPicker() {
-  const [color, setColor] = useState('#3b82f6');
+  const { showToast } = useToast();
+  const [hex8, setHex8] = useState('#3b82f6ff');
   const [savedColors, setSavedColors] = useState<SavedColor[]>([]);
-  const [copiedFormat, setCopiedFormat] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'picker' | 'palettes' | 'contrast' | 'extract'>('picker');
+  const [activeTab, setActiveTab] = useState<'picker' | 'harmonies' | 'library' | 'contrast' | 'extract'>('picker');
   const [contrastBgColor, setContrastBgColor] = useState('#ffffff');
   const [extractedColors, setExtractedColors] = useState<string[]>([]);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [libraryQuery, setLibraryQuery] = useState('');
+  const [libraryCategory, setLibraryCategory] = useState(RECENT_LIBRARY_CATEGORY);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const { hex6: color, alpha } = hex8ToHex6Alpha(hex8);
+
+  const setColor = useCallback((newHex6: string) => {
+    setHex8(hex6AlphaToHex8(newHex6, alpha));
+  }, [alpha]);
+
+  const setAlpha = useCallback((newAlpha: number) => {
+    setHex8(hex6AlphaToHex8(color, newAlpha));
+  }, [color]);
 
   // Load saved colors from localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
       const saved = localStorage.getItem(SAVED_COLORS_KEY);
-      if (saved) {
-        setSavedColors(JSON.parse(saved));
-      }
+      if (saved) setSavedColors(JSON.parse(saved));
     } catch (e) {
       console.error('Failed to load saved colors:', e);
     }
   }, []);
 
-  // Save colors to localStorage
   const saveColor = useCallback(() => {
-    const newColor: SavedColor = {
-      hex: color,
-      savedAt: Date.now(),
-    };
+    const newColor: SavedColor = { hex: color, savedAt: Date.now() };
     const updated = [newColor, ...savedColors.filter((c) => c.hex !== color)].slice(0, 20);
     setSavedColors(updated);
     if (typeof window !== 'undefined') localStorage.setItem(SAVED_COLORS_KEY, JSON.stringify(updated));
-  }, [color, savedColors]);
+    showToast('Color saved', 'success');
+  }, [color, savedColors, showToast]);
 
   const removeSavedColor = useCallback((hex: string) => {
     const updated = savedColors.filter((c) => c.hex !== hex);
@@ -404,33 +232,34 @@ export function ColorPicker() {
     if (typeof window !== 'undefined') localStorage.setItem(SAVED_COLORS_KEY, JSON.stringify(updated));
   }, [savedColors]);
 
-  // Copy to clipboard
-  const copyToClipboard = useCallback(async (text: string, format: string) => {
+  const copyToClipboard = useCallback(async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedFormat(format);
-      setTimeout(() => setCopiedFormat(null), 2000);
-    } catch (e) {
-      console.error('Failed to copy:', e);
+      showToast(`Copied ${label} to clipboard`, 'success');
+    } catch {
+      showToast('Failed to copy', 'error');
     }
-  }, []);
+  }, [showToast]);
 
-  // Get all color formats
+  // Derived color values
   const rgb = hexToRgb(color);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
   const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
   const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
+  const alphaPercent = Math.round(alpha * 100);
 
   const colorFormats = [
     { name: 'HEX', value: color.toUpperCase() },
+    { name: 'HEX8', value: hex8.toUpperCase() },
     { name: 'RGB', value: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` },
+    { name: 'RGBA', value: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha.toFixed(2)})` },
     { name: 'HSL', value: `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)` },
+    { name: 'HSLA', value: `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${alpha.toFixed(2)})` },
     { name: 'HSV/HSB', value: `hsv(${hsv.h}, ${hsv.s}%, ${hsv.v}%)` },
     { name: 'CMYK', value: `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)` },
   ];
 
-  // Palette types
-  const palettes = [
+  const harmonies = [
     { name: 'Complementary', colors: getComplementary(color), description: 'Opposite colors on the wheel' },
     { name: 'Triadic', colors: getTriadic(color), description: 'Three colors equally spaced' },
     { name: 'Analogous', colors: getAnalogous(color), description: 'Adjacent colors' },
@@ -439,29 +268,30 @@ export function ColorPicker() {
     { name: 'Monochromatic', colors: getMonochromatic(color), description: 'Shades and tints of one hue' },
   ];
 
-  // Contrast checking
   const contrastRatio = getContrastRatio(color, contrastBgColor);
   const wcagAA = contrastRatio >= 4.5;
   const wcagAALarge = contrastRatio >= 3;
   const wcagAAA = contrastRatio >= 7;
   const wcagAAALarge = contrastRatio >= 4.5;
 
-  // Export as CSS variables
-  const exportAsCss = useCallback((colors: string[]) => {
+  const copyAsCss = useCallback((colors: string[]) => {
     const css = `:root {\n${colors.map((c, i) => `  --color-${i + 1}: ${c};`).join('\n')}\n}`;
-    copyToClipboard(css, 'css');
+    copyToClipboard(css, 'CSS variables');
   }, [copyToClipboard]);
 
-  // Export as Tailwind config
-  const exportAsTailwind = useCallback((colors: string[]) => {
+  const copyAsTailwind = useCallback((colors: string[]) => {
     const config = `// tailwind.config.js colors\ncolors: {\n  custom: {\n${colors.map((c, i) => `    ${(i + 1) * 100}: '${c}',`).join('\n')}\n  }\n}`;
-    copyToClipboard(config, 'tailwind');
+    copyToClipboard(config, 'Tailwind config');
   }, [copyToClipboard]);
 
-  // Handle image upload for color extraction
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select an image file', 'error');
+      return;
+    }
 
     setIsExtracting(true);
     const reader = new FileReader();
@@ -471,11 +301,9 @@ export function ColorPicker() {
       img.onload = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Resize for performance
         const maxSize = 200;
         const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
         canvas.width = img.width * scale;
@@ -483,19 +311,36 @@ export function ColorPicker() {
 
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const colors = extractColorsFromImage(imageData);
-        setExtractedColors(colors);
+        setExtractedColors(extractColorsFromImage(imageData));
         setIsExtracting(false);
+      };
+      img.onerror = () => {
+        setIsExtracting(false);
+        showToast('Could not read that image', 'error');
       };
       img.src = event.target?.result as string;
     };
+    reader.onerror = () => {
+      setIsExtracting(false);
+      showToast('Could not read that file', 'error');
+    };
 
     reader.readAsDataURL(file);
-  }, []);
+  }, [showToast]);
+
+  const filteredPalettes = useMemo(() => {
+    const q = libraryQuery.trim().toLowerCase();
+    return COLOR_PALETTES.filter((p) => {
+      if (libraryCategory !== RECENT_LIBRARY_CATEGORY && p.category !== libraryCategory) return false;
+      if (!q) return true;
+      return p.name.toLowerCase().includes(q);
+    }).slice(0, 60);
+  }, [libraryQuery, libraryCategory]);
 
   const tabs = [
     { id: 'picker' as const, label: 'Color Picker' },
-    { id: 'palettes' as const, label: 'Palettes' },
+    { id: 'harmonies' as const, label: 'Harmonies' },
+    { id: 'library' as const, label: `Palette Library (${COLOR_PALETTES.length})` },
     { id: 'contrast' as const, label: 'Contrast Checker' },
     { id: 'extract' as const, label: 'Extract from Image' },
   ];
@@ -510,9 +355,7 @@ export function ColorPicker() {
             onClick={() => setActiveTab(tab.id)}
             className={clsx(
               'px-4 py-2 rounded-lg font-medium transition-all',
-              activeTab === tab.id
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
             )}
             aria-pressed={activeTab === tab.id}
           >
@@ -527,39 +370,111 @@ export function ColorPicker() {
           {/* Color Picker */}
           <div className="space-y-4">
             <div className="flex justify-center">
-              <HexColorPicker
-                color={color}
-                onChange={setColor}
-                style={{ width: '100%', maxWidth: '300px', height: '200px' }}
+              <HexAlphaColorPicker
+                color={hex8}
+                onChange={setHex8}
+                style={{ width: '100%', maxWidth: '300px', height: '220px' }}
               />
             </div>
 
-            <div className="flex items-center gap-4 justify-center">
-              <label htmlFor="hex-input" className="text-slate-300 font-medium">
-                HEX:
-              </label>
+            <div className="flex items-center gap-3 justify-center flex-wrap">
+              <label htmlFor="hex-input" className="text-slate-300 font-medium">HEX:</label>
               <HexColorInput
                 id="hex-input"
                 color={color}
                 onChange={setColor}
                 prefixed
-                className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center w-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center w-28 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 onClick={saveColor}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                 aria-label="Save color to favorites"
               >
-                Save
+                <Star className="w-4 h-4" /> Save
               </button>
             </div>
 
-            {/* Color Preview */}
+            {/* Numeric RGB inputs */}
+            <div className="grid grid-cols-3 gap-2">
+              {(['r', 'g', 'b'] as const).map((channel) => (
+                <label key={channel} className="text-xs text-slate-400 uppercase text-center block">
+                  {channel}
+                  <input
+                    type="number"
+                    min={0}
+                    max={255}
+                    value={rgb[channel]}
+                    onChange={(e) => {
+                      const val = Math.max(0, Math.min(255, Number(e.target.value) || 0));
+                      const newRgb = { ...rgb, [channel]: val };
+                      setColor(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
+                    }}
+                    className="mt-1 w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </label>
+              ))}
+            </div>
+
+            {/* Numeric HSL inputs */}
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { key: 'h', max: 360, label: 'H' },
+                { key: 's', max: 100, label: 'S' },
+                { key: 'l', max: 100, label: 'L' },
+              ] as const).map(({ key, max, label }) => (
+                <label key={key} className="text-xs text-slate-400 uppercase text-center block">
+                  {label}
+                  <input
+                    type="number"
+                    min={0}
+                    max={max}
+                    value={hsl[key]}
+                    onChange={(e) => {
+                      const val = Math.max(0, Math.min(max, Number(e.target.value) || 0));
+                      const newHsl = { ...hsl, [key]: val };
+                      const newRgb = hslToRgb(newHsl.h, newHsl.s, newHsl.l);
+                      setColor(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
+                    }}
+                    className="mt-1 w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </label>
+              ))}
+            </div>
+
+            {/* Alpha slider */}
+            <div>
+              <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <span>Alpha / Transparency</span>
+                <span>{alphaPercent}%</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={alphaPercent}
+                onChange={(e) => setAlpha(Number(e.target.value) / 100)}
+                className="w-full accent-blue-500"
+                aria-label="Alpha transparency"
+              />
+            </div>
+
+            {/* Color Preview (checkerboard to show transparency) */}
             <div
-              className="w-full h-24 rounded-xl border border-slate-600 shadow-lg"
-              style={{ backgroundColor: color }}
-              aria-label={`Color preview: ${color}`}
-            />
+              className="relative w-full h-24 rounded-xl border border-slate-600 shadow-lg overflow-hidden"
+              aria-label={`Color preview: ${hex8}`}
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(45deg, #94a3b8 25%, transparent 25%), linear-gradient(-45deg, #94a3b8 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #94a3b8 75%), linear-gradient(-45deg, transparent 75%, #94a3b8 75%)',
+                  backgroundSize: '16px 16px',
+                  backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
+                }}
+              />
+              <div className="absolute inset-0" style={{ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})` }} />
+            </div>
           </div>
 
           {/* Color Formats */}
@@ -571,22 +486,11 @@ export function ColorPicker() {
                   key={format.name}
                   className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3 border border-slate-600"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-slate-400 text-sm">{format.name}</span>
-                    <p className="text-white font-mono">{format.value}</p>
+                    <p className="text-white font-mono truncate">{format.value}</p>
                   </div>
-                  <button
-                    onClick={() => copyToClipboard(format.value, format.name)}
-                    className={clsx(
-                      'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                      copiedFormat === format.name
-                        ? 'bg-green-600 text-white'
-                        : 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-                    )}
-                    aria-label={`Copy ${format.name} value`}
-                  >
-                    {copiedFormat === format.name ? 'Copied!' : 'Copy'}
-                  </button>
+                  <CopyButton value={format.value} label={format.name} />
                 </div>
               ))}
             </div>
@@ -610,10 +514,10 @@ export function ColorPicker() {
                 />
                 <button
                   onClick={() => removeSavedColor(saved.hex)}
-                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-600 rounded-full text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                   aria-label={`Remove ${saved.hex} from saved colors`}
                 >
-                  x
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             ))}
@@ -621,60 +525,46 @@ export function ColorPicker() {
         </div>
       )}
 
-      {/* Palettes Tab */}
-      {activeTab === 'palettes' && (
+      {/* Harmonies Tab */}
+      {activeTab === 'harmonies' && (
         <div className="space-y-8">
-          {/* Current color preview */}
           <div className="flex items-center gap-4">
-            <div
-              className="w-16 h-16 rounded-lg border border-slate-600"
-              style={{ backgroundColor: color }}
-            />
+            <div className="w-16 h-16 rounded-lg border border-slate-600" style={{ backgroundColor: color }} />
             <div>
               <p className="text-slate-400 text-sm">Base Color</p>
               <p className="text-white font-mono text-lg">{color.toUpperCase()}</p>
             </div>
           </div>
 
-          {palettes.map((palette) => (
-            <div key={palette.name} className="space-y-3">
-              <div className="flex items-center justify-between">
+          {harmonies.map((harmony) => (
+            <div key={harmony.name} className="space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">{palette.name}</h3>
-                  <p className="text-slate-400 text-sm">{palette.description}</p>
+                  <h3 className="text-lg font-semibold text-white">{harmony.name}</h3>
+                  <p className="text-slate-400 text-sm">{harmony.description}</p>
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => exportAsCss(palette.colors)}
-                    className={clsx(
-                      'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                      copiedFormat === 'css'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-                    )}
+                    onClick={() => copyAsCss(harmony.colors)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
                   >
-                    CSS
+                    <Copy className="w-3.5 h-3.5" /> CSS
                   </button>
                   <button
-                    onClick={() => exportAsTailwind(palette.colors)}
-                    className={clsx(
-                      'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                      copiedFormat === 'tailwind'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-                    )}
+                    onClick={() => copyAsTailwind(harmony.colors)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
                   >
-                    Tailwind
+                    <Copy className="w-3.5 h-3.5" /> Tailwind
                   </button>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                {palette.colors.map((c, i) => (
+                {harmony.colors.map((c, i) => (
                   <button
                     key={i}
                     onClick={() => {
                       setColor(c);
-                      copyToClipboard(c, `palette-${palette.name}-${i}`);
+                      copyToClipboard(c, c.toUpperCase());
                     }}
                     className="group relative"
                   >
@@ -693,17 +583,87 @@ export function ColorPicker() {
         </div>
       )}
 
+      {/* Palette Library Tab */}
+      {activeTab === 'library' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={libraryQuery}
+                onChange={(e) => setLibraryQuery(e.target.value)}
+                placeholder="Search palettes by name..."
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <select
+              value={libraryCategory}
+              onChange={(e) => setLibraryCategory(e.target.value)}
+              className="px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={RECENT_LIBRARY_CATEGORY}>All categories</option>
+              {PALETTE_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <p className="text-slate-400 text-sm flex items-center gap-1.5">
+            <PaletteIcon className="w-4 h-4" />
+            {COLOR_PALETTES.length} built-in palettes &mdash; click any swatch to copy its hex code
+            {filteredPalettes.length >= 60 && ' (showing first 60 matches, refine your search for more)'}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {filteredPalettes.map((palette) => (
+              <div key={palette.id} className="bg-slate-700/50 rounded-lg border border-slate-600 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-white truncate">{palette.name}</span>
+                  <button
+                    onClick={() => copyAsCss(palette.colors)}
+                    className="text-slate-400 hover:text-white flex-shrink-0"
+                    aria-label={`Copy ${palette.name} as CSS variables`}
+                    title="Copy as CSS variables"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex rounded-md overflow-hidden h-10">
+                  {palette.colors.map((c, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setColor(c);
+                        copyToClipboard(c, c.toUpperCase());
+                      }}
+                      className="flex-1 hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: c }}
+                      title={c.toUpperCase()}
+                      aria-label={`Copy ${c}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredPalettes.length === 0 && (
+            <p className="text-center text-slate-400 py-8">No palettes match "{libraryQuery}"</p>
+          )}
+        </div>
+      )}
+
       {/* Contrast Checker Tab */}
       {activeTab === 'contrast' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Foreground color */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white">Text Color (Foreground)</h3>
               <div className="flex justify-center">
-                <HexColorPicker
-                  color={color}
-                  onChange={setColor}
+                <HexAlphaColorPicker
+                  color={hex8}
+                  onChange={setHex8}
                   style={{ width: '100%', maxWidth: '200px', height: '150px' }}
                 />
               </div>
@@ -717,13 +677,12 @@ export function ColorPicker() {
               </div>
             </div>
 
-            {/* Background color */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-white">Background Color</h3>
               <div className="flex justify-center">
-                <HexColorPicker
-                  color={contrastBgColor}
-                  onChange={setContrastBgColor}
+                <HexAlphaColorPicker
+                  color={`${contrastBgColor}ff`}
+                  onChange={(v) => setContrastBgColor(hex8ToHex6Alpha(v).hex6)}
                   style={{ width: '100%', maxWidth: '200px', height: '150px' }}
                 />
               </div>
@@ -738,20 +697,13 @@ export function ColorPicker() {
             </div>
           </div>
 
-          {/* Preview */}
-          <div
-            className="p-8 rounded-xl border border-slate-600"
-            style={{ backgroundColor: contrastBgColor }}
-          >
-            <p style={{ color: color }} className="text-2xl font-bold mb-2">
-              Sample Heading Text
-            </p>
-            <p style={{ color: color }} className="text-base">
+          <div className="p-8 rounded-xl border border-slate-600" style={{ backgroundColor: contrastBgColor }}>
+            <p style={{ color }} className="text-2xl font-bold mb-2">Sample Heading Text</p>
+            <p style={{ color }} className="text-base">
               This is sample body text to preview the contrast between the foreground and background colors. Make sure text is readable for all users.
             </p>
           </div>
 
-          {/* Contrast Results */}
           <div className="bg-slate-700/50 rounded-xl p-6 border border-slate-600">
             <div className="text-center mb-6">
               <p className="text-slate-400 text-sm mb-1">Contrast Ratio</p>
@@ -759,49 +711,23 @@ export function ColorPicker() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className={clsx(
-                'p-4 rounded-lg text-center border',
-                wcagAA ? 'bg-green-900/30 border-green-700' : 'bg-red-900/30 border-red-700'
-              )}>
-                <p className={clsx('text-sm font-medium', wcagAA ? 'text-green-400' : 'text-red-400')}>
-                  {wcagAA ? 'PASS' : 'FAIL'}
-                </p>
-                <p className="text-white font-semibold">AA Normal</p>
-                <p className="text-slate-400 text-xs">4.5:1</p>
-              </div>
-
-              <div className={clsx(
-                'p-4 rounded-lg text-center border',
-                wcagAALarge ? 'bg-green-900/30 border-green-700' : 'bg-red-900/30 border-red-700'
-              )}>
-                <p className={clsx('text-sm font-medium', wcagAALarge ? 'text-green-400' : 'text-red-400')}>
-                  {wcagAALarge ? 'PASS' : 'FAIL'}
-                </p>
-                <p className="text-white font-semibold">AA Large</p>
-                <p className="text-slate-400 text-xs">3:1</p>
-              </div>
-
-              <div className={clsx(
-                'p-4 rounded-lg text-center border',
-                wcagAAA ? 'bg-green-900/30 border-green-700' : 'bg-red-900/30 border-red-700'
-              )}>
-                <p className={clsx('text-sm font-medium', wcagAAA ? 'text-green-400' : 'text-red-400')}>
-                  {wcagAAA ? 'PASS' : 'FAIL'}
-                </p>
-                <p className="text-white font-semibold">AAA Normal</p>
-                <p className="text-slate-400 text-xs">7:1</p>
-              </div>
-
-              <div className={clsx(
-                'p-4 rounded-lg text-center border',
-                wcagAAALarge ? 'bg-green-900/30 border-green-700' : 'bg-red-900/30 border-red-700'
-              )}>
-                <p className={clsx('text-sm font-medium', wcagAAALarge ? 'text-green-400' : 'text-red-400')}>
-                  {wcagAAALarge ? 'PASS' : 'FAIL'}
-                </p>
-                <p className="text-white font-semibold">AAA Large</p>
-                <p className="text-slate-400 text-xs">4.5:1</p>
-              </div>
+              {[
+                { pass: wcagAA, label: 'AA Normal', ratio: '4.5:1' },
+                { pass: wcagAALarge, label: 'AA Large', ratio: '3:1' },
+                { pass: wcagAAA, label: 'AAA Normal', ratio: '7:1' },
+                { pass: wcagAAALarge, label: 'AAA Large', ratio: '4.5:1' },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className={clsx('p-4 rounded-lg text-center border', item.pass ? 'bg-green-900/30 border-green-700' : 'bg-red-900/30 border-red-700')}
+                >
+                  <p className={clsx('text-sm font-medium', item.pass ? 'text-green-400' : 'text-red-400')}>
+                    {item.pass ? 'PASS' : 'FAIL'}
+                  </p>
+                  <p className="text-white font-semibold">{item.label}</p>
+                  <p className="text-slate-400 text-xs">{item.ratio}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -823,17 +749,12 @@ export function ColorPicker() {
               htmlFor="image-upload"
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <Upload className="w-5 h-5" />
               Upload Image
             </label>
-            <p className="text-slate-400 text-sm mt-2">
-              Upload an image to extract its dominant colors
-            </p>
+            <p className="text-slate-400 text-sm mt-2">Upload an image to extract its dominant colors</p>
           </div>
 
-          {/* Hidden canvas for image processing */}
           <canvas ref={canvasRef} className="hidden" />
 
           {isExtracting && (
@@ -845,30 +766,20 @@ export function ColorPicker() {
 
           {extractedColors.length > 0 && !isExtracting && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <h3 className="text-lg font-semibold text-white">Extracted Colors</h3>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => exportAsCss(extractedColors)}
-                    className={clsx(
-                      'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                      copiedFormat === 'css'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-                    )}
+                    onClick={() => copyAsCss(extractedColors)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
                   >
-                    Export CSS
+                    <Copy className="w-3.5 h-3.5" /> CSS
                   </button>
                   <button
-                    onClick={() => exportAsTailwind(extractedColors)}
-                    className={clsx(
-                      'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                      copiedFormat === 'tailwind'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-                    )}
+                    onClick={() => copyAsTailwind(extractedColors)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
                   >
-                    Export Tailwind
+                    <Copy className="w-3.5 h-3.5" /> Tailwind
                   </button>
                 </div>
               </div>
@@ -879,7 +790,7 @@ export function ColorPicker() {
                     key={i}
                     onClick={() => {
                       setColor(c);
-                      copyToClipboard(c, `extracted-${i}`);
+                      copyToClipboard(c, c.toUpperCase());
                     }}
                     className="group relative"
                   >
@@ -894,9 +805,7 @@ export function ColorPicker() {
                 ))}
               </div>
 
-              <p className="text-slate-400 text-sm text-center">
-                Click on any color to select it and copy to clipboard
-              </p>
+              <p className="text-slate-400 text-sm text-center">Click on any color to select it and copy to clipboard</p>
             </div>
           )}
         </div>

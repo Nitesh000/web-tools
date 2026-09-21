@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, type ChangeEvent } from 'react';
 import GIF from 'gif.js';
+import gifWorkerUrl from 'gif.js/dist/gif.worker.js?url';
 import { Button } from '@/components/common/Button';
 import { ProgressBar } from '@/components/common/ProgressBar';
 
@@ -254,7 +255,7 @@ export function VideoToGif() {
         quality: gifQuality,
         width: settings.width,
         height: settings.height,
-        workerScript: '/gif.worker.js',
+        workerScript: gifWorkerUrl,
       });
 
       // Add frames

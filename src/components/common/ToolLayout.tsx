@@ -91,15 +91,15 @@ export function ToolLayout({
         )}
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <main className="container mx-auto px-4 py-8 max-w-6xl">
           {/* Header */}
           <header className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {title}
             </h1>
             {privacyNote && (
-              <div className="inline-flex items-center gap-2 bg-green-900/30 border border-green-700/50 rounded-lg px-4 py-2 text-green-400 text-sm">
+              <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700/50 rounded-lg px-4 py-2 text-green-700 dark:text-green-400 text-sm">
                 <svg
                   className="w-4 h-4 flex-shrink-0"
                   fill="none"
@@ -120,16 +120,16 @@ export function ToolLayout({
           </header>
 
           {/* Main Tool Section */}
-          <section className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6 md:p-8 mb-8">
+          <section className="bg-white dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-slate-700/50 p-6 md:p-8 mb-8 shadow-sm dark:shadow-none">
             {children}
           </section>
 
           {/* Description */}
-          <section className="bg-slate-800/30 rounded-xl border border-slate-700/30 p-6 md:p-8 mb-8">
-            <h2 className="text-xl font-semibold text-white mb-4">
+          <section className="bg-white dark:bg-slate-800/30 rounded-xl border border-gray-200 dark:border-slate-700/30 p-6 md:p-8 mb-8 shadow-sm dark:shadow-none">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               About This Tool
             </h2>
-            <div className="prose prose-invert prose-slate max-w-none text-slate-300 leading-relaxed">
+            <div className="prose prose-gray dark:prose-invert dark:prose-slate max-w-none text-gray-700 dark:text-slate-300 leading-relaxed">
               {typeof description === 'string' ? (
                 <p className="whitespace-pre-line">{description}</p>
               ) : (
@@ -139,13 +139,13 @@ export function ToolLayout({
           </section>
 
           {/* How to Use */}
-          <section className="bg-slate-800/30 rounded-xl border border-slate-700/30 p-6 md:p-8 mb-8">
-            <h2 className="text-xl font-semibold text-white mb-4">
+          <section className="bg-white dark:bg-slate-800/30 rounded-xl border border-gray-200 dark:border-slate-700/30 p-6 md:p-8 mb-8 shadow-sm dark:shadow-none">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               How to Use
             </h2>
             <ol className="space-y-3">
               {howToUse.map((step, index) => (
-                <li key={index} className="flex gap-4 text-slate-300">
+                <li key={index} className="flex gap-4 text-gray-700 dark:text-slate-300">
                   <span className="flex-shrink-0 w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
                     {index + 1}
                   </span>
@@ -157,20 +157,20 @@ export function ToolLayout({
 
           {/* FAQ Section */}
           {faqs.length > 0 && (
-            <section className="bg-slate-800/30 rounded-xl border border-slate-700/30 p-6 md:p-8 mb-8">
-              <h2 className="text-xl font-semibold text-white mb-6">
+            <section className="bg-white dark:bg-slate-800/30 rounded-xl border border-gray-200 dark:border-slate-700/30 p-6 md:p-8 mb-8 shadow-sm dark:shadow-none">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                 Frequently Asked Questions
               </h2>
               <div className="space-y-4">
                 {faqs.map((faq, index) => (
                   <details
                     key={index}
-                    className="group bg-slate-700/30 rounded-lg border border-slate-600/30"
+                    className="group bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-200 dark:border-slate-600/30"
                   >
-                    <summary className="flex items-center justify-between p-4 cursor-pointer text-white font-medium hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <summary className="flex items-center justify-between p-4 cursor-pointer text-gray-900 dark:text-white font-medium hover:bg-gray-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors">
                       <span>{faq.question}</span>
                       <svg
-                        className="w-5 h-5 text-slate-400 transition-transform group-open:rotate-180"
+                        className="w-5 h-5 text-gray-400 dark:text-slate-400 transition-transform group-open:rotate-180"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -184,7 +184,7 @@ export function ToolLayout({
                         />
                       </svg>
                     </summary>
-                    <p className="px-4 pb-4 text-slate-300 leading-relaxed">
+                    <p className="px-4 pb-4 text-gray-600 dark:text-slate-300 leading-relaxed">
                       {faq.answer}
                     </p>
                   </details>
@@ -195,8 +195,8 @@ export function ToolLayout({
 
           {/* Related Tools */}
           {relatedTools.length > 0 && (
-            <section className="bg-slate-800/30 rounded-xl border border-slate-700/30 p-6 md:p-8">
-              <h2 className="text-xl font-semibold text-white mb-6">
+            <section className="bg-white dark:bg-slate-800/30 rounded-xl border border-gray-200 dark:border-slate-700/30 p-6 md:p-8 shadow-sm dark:shadow-none">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                 Related Tools
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -204,12 +204,12 @@ export function ToolLayout({
                   <a
                     key={index}
                     href={tool.href}
-                    className="block p-4 bg-slate-700/30 rounded-lg border border-slate-600/30 hover:bg-slate-700/50 hover:border-blue-500/50 transition-all group"
+                    className="block p-4 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-200 dark:border-slate-600/30 hover:bg-gray-100 dark:hover:bg-slate-700/50 hover:border-blue-500/50 transition-all group"
                   >
-                    <h3 className="text-white font-medium group-hover:text-blue-400 transition-colors mb-1">
+                    <h3 className="text-gray-900 dark:text-white font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
                       {tool.name}
                     </h3>
-                    <p className="text-sm text-slate-400">{tool.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">{tool.description}</p>
                   </a>
                 ))}
               </div>
@@ -218,8 +218,8 @@ export function ToolLayout({
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-slate-700/50 mt-12 py-8">
-          <div className="container mx-auto px-4 text-center text-slate-400 text-sm">
+        <footer className="border-t border-gray-200 dark:border-slate-700/50 mt-12 py-8">
+          <div className="container mx-auto px-4 text-center text-gray-500 dark:text-slate-400 text-sm">
             <p>All processing happens locally in your browser. Your files never leave your device.</p>
           </div>
         </footer>

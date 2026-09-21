@@ -1,41 +1,27 @@
 import { Link } from 'react-router-dom';
+import { ShieldCheck, UserCheck, Zap, Lock } from 'lucide-react';
 import { SEOHead } from '../seo/SEOHead';
 import { TOOLS, SITE_CONFIG } from '../utils/constants';
+import { AppIcon } from '../components/common/ToolIcon';
 
 const features = [
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
+    icon: ShieldCheck,
     title: 'Client-Side Processing',
     description: 'All file processing happens directly in your browser using modern web technologies like WebAssembly. Your files never leave your device.',
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ),
+    icon: UserCheck,
     title: 'No Sign-Up Required',
     description: 'Start using any tool immediately without creating an account. We believe tools should be accessible to everyone without barriers.',
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
+    icon: Zap,
     title: 'Lightning Fast',
     description: 'No upload delays or server queues. Processing starts instantly because everything runs locally on your machine.',
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-      </svg>
-    ),
+    icon: Lock,
     title: 'Secure & Private',
     description: 'Zero data collection, no tracking, and complete privacy. Your files and data are never transmitted to any server.',
   },
@@ -118,7 +104,7 @@ export default function AboutPage() {
                   className="flex gap-4 p-6 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
                 >
                   <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                    {feature.icon}
+                    <feature.icon className="w-6 h-6" aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -179,7 +165,7 @@ export default function AboutPage() {
                   to={tool.path}
                   className="flex flex-col items-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700"
                 >
-                  <span className="text-3xl mb-2">{tool.icon}</span>
+                  <AppIcon name={tool.icon} className="w-7 h-7 mb-2 text-gray-700 dark:text-gray-300" />
                   <span className="text-sm font-medium text-gray-900 dark:text-white text-center">
                     {tool.name}
                   </span>

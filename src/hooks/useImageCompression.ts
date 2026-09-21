@@ -24,7 +24,7 @@ export interface ImageFile {
 export interface UseImageCompressionReturn {
   images: ImageFile[];
   isCompressing: boolean;
-  addImages: (files: FileList | File[]) => void;
+  addImages: (files: FileList | File[]) => { added: number; rejected: number };
   removeImage: (id: string) => void;
   clearImages: () => void;
   compressImages: (options: CompressionOptions) => Promise<void>;
@@ -62,9 +62,8 @@ export function useImageCompression(): UseImageCompressionReturn {
 
   const addImages = useCallback((files: FileList | File[]) => {
     const fileArray = Array.from(files);
-    const imageFiles = fileArray.filter((file) =>
-      file.type.startsWith('image/')
-    );
+    const imageFiles = fileArray.filter((file) => file.type.startsWith('image/'));
+    const rejected = fileArray.length - imageFiles.length;
 
     const newImages: ImageFile[] = imageFiles.map((file) => ({
       id: generateId(),
@@ -80,6 +79,7 @@ export function useImageCompression(): UseImageCompressionReturn {
     }));
 
     setImages((prev) => [...prev, ...newImages]);
+    return { added: imageFiles.length, rejected };
   }, []);
 
   const removeImage = useCallback((id: string) => {

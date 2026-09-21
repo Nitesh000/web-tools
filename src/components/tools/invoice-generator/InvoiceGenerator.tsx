@@ -37,7 +37,16 @@ interface InvoiceData {
   template: TemplateType;
 }
 
-type TemplateType = 'modern' | 'classic' | 'minimal';
+type TemplateType = 'modern' | 'classic' | 'minimal' | 'corporate' | 'creative' | 'elegant';
+
+const TEMPLATE_OPTIONS: { id: TemplateType; name: string; description: string; swatch: string }[] = [
+  { id: 'modern', name: 'Modern', description: 'Bold blue header, rounded table', swatch: '#2563eb' },
+  { id: 'classic', name: 'Classic', description: 'Traditional serif, formal border', swatch: '#1f2937' },
+  { id: 'minimal', name: 'Minimal', description: 'Clean lines, lots of whitespace', swatch: '#6b7280' },
+  { id: 'corporate', name: 'Corporate', description: 'Slate header, structured grid', swatch: '#0f766e' },
+  { id: 'creative', name: 'Creative', description: 'Gradient header, rounded accents', swatch: '#db2777' },
+  { id: 'elegant', name: 'Elegant', description: 'Serif headings, gold accent rule', swatch: '#92400e' },
+];
 
 const CURRENCY_OPTIONS = [
   { code: 'USD', symbol: '$', name: 'US Dollar' },
@@ -279,6 +288,33 @@ export function InvoiceGenerator() {
           tableHeader: 'border-b border-gray-300 text-gray-500 uppercase text-xs tracking-wider',
           tableRow: 'border-b border-gray-100',
         };
+      case 'corporate':
+        return {
+          container: 'bg-white text-gray-900 font-sans',
+          header: 'bg-slate-800 text-white',
+          accent: 'text-slate-700',
+          table: 'border border-slate-200',
+          tableHeader: 'bg-slate-100 text-slate-700 uppercase text-xs tracking-wide',
+          tableRow: 'border-b border-slate-100',
+        };
+      case 'creative':
+        return {
+          container: 'bg-white text-gray-900 font-sans',
+          header: 'bg-gradient-to-r from-pink-500 via-rose-500 to-orange-400 text-white rounded-t-2xl',
+          accent: 'text-pink-600',
+          table: 'rounded-xl overflow-hidden',
+          tableHeader: 'bg-pink-50 text-pink-700',
+          tableRow: 'border-b border-pink-50 hover:bg-pink-50/50',
+        };
+      case 'elegant':
+        return {
+          container: 'bg-white text-gray-900 font-serif',
+          header: 'border-b-2 border-amber-600',
+          accent: 'text-amber-800',
+          table: '',
+          tableHeader: 'border-b border-amber-300 text-amber-900 uppercase text-xs tracking-widest',
+          tableRow: 'border-b border-amber-100',
+        };
       case 'modern':
       default:
         return {
@@ -293,6 +329,8 @@ export function InvoiceGenerator() {
   };
 
   const templateStyles = getTemplateStyles();
+  const hasDarkHeader = data.template === 'modern' || data.template === 'creative' || data.template === 'corporate';
+  const headerMutedText = data.template === 'creative' ? 'text-pink-100' : data.template === 'corporate' ? 'text-slate-300' : 'text-blue-100';
 
   return (
     <div className="space-y-6">
@@ -332,23 +370,39 @@ export function InvoiceGenerator() {
         {/* Form Section */}
         {!showPreview && (
           <div className="space-y-6">
-            {/* Template & Currency Selection */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor={`${formId}-template`} className={labelClasses}>
-                  Template Style
-                </label>
-                <select
-                  id={`${formId}-template`}
-                  value={data.template}
-                  onChange={(e) => setData(prev => ({ ...prev, template: e.target.value as TemplateType }))}
-                  className={inputClasses}
-                >
-                  <option value="modern">Modern</option>
-                  <option value="classic">Classic</option>
-                  <option value="minimal">Minimal</option>
-                </select>
+            {/* Template Selection */}
+            <div>
+              <span className={labelClasses}>Template Style</span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-1">
+                {TEMPLATE_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setData((prev) => ({ ...prev, template: option.id }))}
+                    className={clsx(
+                      'text-left rounded-lg border-2 p-3 transition-colors',
+                      data.template === option.id
+                        ? 'border-blue-500 bg-blue-500/10'
+                        : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
+                    )}
+                    aria-pressed={data.template === option.id}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="w-4 h-4 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: option.swatch }}
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm font-semibold text-white">{option.name}</span>
+                    </span>
+                    <span className="mt-1 block text-xs text-slate-400">{option.description}</span>
+                  </button>
+                ))}
               </div>
+            </div>
+
+            {/* Currency Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor={`${formId}-currency`} className={labelClasses}>
                   Currency
@@ -763,18 +817,18 @@ export function InvoiceGenerator() {
                         className="h-16 w-auto object-contain mb-4"
                       />
                     )}
-                    <h1 className={clsx('text-2xl font-bold', data.template === 'modern' ? 'text-white' : templateStyles.accent)}>
+                    <h1 className={clsx('text-2xl font-bold', hasDarkHeader ? 'text-white' : templateStyles.accent)}>
                       {data.companyInfo.name || 'Your Company'}
                     </h1>
-                    <p className={clsx('text-sm whitespace-pre-line mt-1', data.template === 'modern' ? 'text-blue-100' : 'text-gray-600')}>
+                    <p className={clsx('text-sm whitespace-pre-line mt-1', hasDarkHeader ? headerMutedText : 'text-gray-600')}>
                       {data.companyInfo.address || 'Company Address'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <h2 className={clsx('text-3xl font-bold', data.template === 'modern' ? 'text-white' : templateStyles.accent)}>
+                    <h2 className={clsx('text-3xl font-bold', hasDarkHeader ? 'text-white' : templateStyles.accent)}>
                       INVOICE
                     </h2>
-                    <p className={clsx('mt-2', data.template === 'modern' ? 'text-blue-100' : 'text-gray-600')}>
+                    <p className={clsx('mt-2', hasDarkHeader ? headerMutedText : 'text-gray-600')}>
                       #{data.invoiceNumber || 'INV-000000'}
                     </p>
                   </div>

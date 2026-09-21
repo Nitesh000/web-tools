@@ -1,44 +1,16 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import { Markdown } from '../../common/Markdown';
 
-// Simple markdown parser for preview
-function parseMarkdown(text: string): string {
-  return text
-    // Headers
-    .replace(/^###### (.*$)/gm, '<h6 class="text-sm font-semibold mt-4 mb-2">$1</h6>')
-    .replace(/^##### (.*$)/gm, '<h5 class="text-base font-semibold mt-4 mb-2">$1</h5>')
-    .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-4 mb-2">$1</h4>')
-    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-5 mb-2">$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-6 mb-3">$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mt-6 mb-4">$1</h1>')
-    // Code blocks
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto my-4 font-mono text-sm"><code>$2</code></pre>')
-    // Inline code
-    .replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
-    // Bold
-    .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold">$1</strong>')
-    .replace(/__([^_]+)__/g, '<strong class="font-bold">$1</strong>')
-    // Italic
-    .replace(/\*([^*]+)\*/g, '<em class="italic">$1</em>')
-    .replace(/_([^_]+)_/g, '<em class="italic">$1</em>')
-    // Strikethrough
-    .replace(/~~([^~]+)~~/g, '<del class="line-through">$1</del>')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 underline hover:no-underline" target="_blank" rel="noopener noreferrer">$1</a>')
-    // Images
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-4" />')
-    // Blockquotes
-    .replace(/^> (.*$)/gm, '<blockquote class="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic my-4 text-gray-600 dark:text-gray-400">$1</blockquote>')
-    // Horizontal rule
-    .replace(/^---$/gm, '<hr class="my-6 border-gray-300 dark:border-gray-600" />')
-    // Unordered lists
-    .replace(/^\* (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
-    .replace(/^- (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
-    // Ordered lists
-    .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
-    // Paragraphs
-    .replace(/\n\n/g, '</p><p class="my-4">')
-    // Line breaks
-    .replace(/\n/g, '<br />');
+function markdownToHtmlString(markdown: string): string {
+  return renderToStaticMarkup(
+    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+      {markdown}
+    </ReactMarkdown>
+  );
 }
 
 const STORAGE_KEY = 'markdown-editor-content';
@@ -271,7 +243,6 @@ export function MarkdownEditor() {
     };
   }, [isFullscreen]);
 
-  const htmlContent = useMemo(() => parseMarkdown(content), [content]);
 
   const insertText = useCallback((before: string, after: string = '') => {
     const textarea = textareaRef.current;
@@ -424,6 +395,8 @@ export function MarkdownEditor() {
     body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
     pre { background: #f4f4f4; padding: 16px; border-radius: 8px; overflow-x: auto; }
     code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
     blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 16px; color: #666; }
     img { max-width: 100%; }
     h1, h2, h3, h4, h5, h6 { margin-top: 24px; margin-bottom: 16px; }
@@ -431,7 +404,7 @@ export function MarkdownEditor() {
   </style>
 </head>
 <body>
-  ${htmlContent}
+  ${markdownToHtmlString(content)}
 </body>
 </html>`;
     const blob = new Blob([fullHtml], { type: 'text/html' });
@@ -441,7 +414,7 @@ export function MarkdownEditor() {
     a.download = `${documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.html`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [content, documentName, htmlContent]);
+  }, [content, documentName]);
 
   const copyToClipboard = useCallback(async () => {
     await navigator.clipboard.writeText(content);
@@ -693,10 +666,9 @@ export function MarkdownEditor() {
             <div className="px-3 py-1 bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
               Preview
             </div>
-            <div
-              className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-900 prose dark:prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: `<p class="my-4">${htmlContent}</p>` }}
-            />
+            <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-900">
+              <Markdown content={content} />
+            </div>
           </div>
         )}
       </div>

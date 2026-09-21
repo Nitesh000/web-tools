@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { TOOLS, SITE_CONFIG } from '../utils/constants';
+import { AppIcon } from '../components/common/ToolIcon';
 
 export default function NotFound() {
   // Show a few popular tools as suggestions
@@ -79,7 +80,7 @@ export default function NotFound() {
                   to={tool.path}
                   className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors group"
                 >
-                  <span className="text-2xl block mb-2">{tool.icon}</span>
+                  <AppIcon name={tool.icon} className="w-6 h-6 mb-2 text-gray-700 dark:text-gray-300" />
                   <span className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
                     {tool.name}
                   </span>

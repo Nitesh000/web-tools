@@ -1,5 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import clsx from 'clsx';
+import { Undo2, Redo2, ArrowUpDown, Copy, Check, Trash2, Maximize2, Minimize2 } from 'lucide-react';
+import { useFullscreen } from '../../../hooks/useFullscreen';
+import { useToast } from '../../common/Toast';
 
 type CaseType =
   | 'uppercase'
@@ -149,6 +152,8 @@ const converters: Record<CaseType, (text: string) => string> = {
 };
 
 export function TextCaseConverter() {
+  const { showToast } = useToast();
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [inputText, setInputText] = useState('');
   const [outputText, setOutputText] = useState('');
   const [activeCase, setActiveCase] = useState<CaseType | null>(null);
@@ -232,16 +237,17 @@ export function TextCaseConverter() {
 
   // Copy to clipboard
   const handleCopy = useCallback(async () => {
-    if (outputText) {
-      try {
-        await navigator.clipboard.writeText(outputText);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy:', err);
-      }
+    if (!outputText) return;
+    try {
+      await navigator.clipboard.writeText(outputText);
+      setCopied(true);
+      showToast('Copied to clipboard', 'success');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      showToast('Failed to copy', 'error');
     }
-  }, [outputText]);
+  }, [outputText, showToast]);
 
   // Clear all
   const handleClear = useCallback(() => {
@@ -266,7 +272,24 @@ export function TextCaseConverter() {
   const canRedo = historyIndex < history.length - 1;
 
   return (
-    <div className="space-y-6">
+    <div
+      className={clsx(
+        isFullscreen
+          ? 'fixed inset-0 z-50 bg-white dark:bg-slate-900 overflow-y-auto p-6 space-y-6'
+          : 'space-y-6'
+      )}
+    >
+      {/* Fullscreen toggle */}
+      <div className="flex justify-end">
+        <button
+          onClick={toggleFullscreen}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-slate-700/50 text-slate-300 hover:bg-slate-700 transition-colors"
+        >
+          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+        </button>
+      </div>
+
       {/* Input Section */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -289,9 +312,7 @@ export function TextCaseConverter() {
               aria-label="Undo"
               title="Undo (Ctrl+Z)"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a4 4 0 0 1 4 4v2M3 10l4-4m-4 4l4 4" />
-              </svg>
+              <Undo2 className="w-5 h-5" />
             </button>
             <button
               onClick={handleRedo}
@@ -305,9 +326,7 @@ export function TextCaseConverter() {
               aria-label="Redo"
               title="Redo (Ctrl+Y)"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10H11a4 4 0 0 0-4 4v2m14-6l-4-4m4 4l-4 4" />
-              </svg>
+              <Redo2 className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -328,7 +347,8 @@ export function TextCaseConverter() {
           }}
           placeholder="Enter or paste your text here..."
           className={clsx(
-            'w-full h-40 px-4 py-3 rounded-xl resize-y',
+            'w-full px-4 py-3 rounded-xl resize-y',
+            isFullscreen ? 'h-[35vh]' : 'h-40',
             'bg-slate-900/50 border border-slate-600/50',
             'text-white placeholder-slate-500',
             'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
@@ -416,9 +436,7 @@ export function TextCaseConverter() {
               )}
               title="Use converted text as input"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-              </svg>
+              <ArrowUpDown className="w-4 h-4" />
               <span className="hidden sm:inline">Use as Input</span>
             </button>
             <button
@@ -437,16 +455,12 @@ export function TextCaseConverter() {
             >
               {copied ? (
                 <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <Check className="w-4 h-4" />
                   <span>Copied!</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
+                  <Copy className="w-4 h-4" />
                   <span>Copy</span>
                 </>
               )}
@@ -459,7 +473,8 @@ export function TextCaseConverter() {
           readOnly
           placeholder="Converted text will appear here..."
           className={clsx(
-            'w-full h-40 px-4 py-3 rounded-xl resize-y',
+            'w-full px-4 py-3 rounded-xl resize-y',
+            isFullscreen ? 'h-[35vh]' : 'h-40',
             'bg-slate-900/50 border border-slate-600/50',
             'text-white placeholder-slate-500',
             'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
@@ -481,9 +496,7 @@ export function TextCaseConverter() {
               : 'bg-slate-700/30 border border-slate-600/30 text-slate-600 cursor-not-allowed'
           )}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
+          <Trash2 className="w-4 h-4" />
           Clear All
         </button>
       </div>

@@ -1,8 +1,10 @@
 import { useState, useCallback, useRef, type DragEvent, type ChangeEvent } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { UploadCloud, Download, Trash2 } from 'lucide-react';
 import { useImageCompression, type CompressionOptions, type ImageFile } from '../../../hooks/useImageCompression';
 import { Button } from '../../common/Button';
+import { useToast } from '../../common/Toast';
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
@@ -143,7 +145,11 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
   );
 }
 
+const MIN_DIMENSION = 100;
+const MAX_DIMENSION = 10000;
+
 export function ImageCompressor() {
+  const { showToast } = useToast();
   const {
     images,
     isCompressing,
@@ -180,6 +186,18 @@ export function ImageCompressor() {
     e.stopPropagation();
   }, []);
 
+  const handleAddFiles = useCallback((files: FileList | File[]) => {
+    const { added, rejected } = addImages(files);
+    if (rejected > 0) {
+      showToast(
+        `Skipped ${rejected} file${rejected > 1 ? 's' : ''} - only image files are supported`,
+        'error'
+      );
+    } else if (added > 0) {
+      showToast(`Added ${added} image${added > 1 ? 's' : ''}`, 'success');
+    }
+  }, [addImages, showToast]);
+
   const handleDrop = useCallback(
     (e: DragEvent<HTMLDivElement>) => {
       e.preventDefault();
@@ -188,29 +206,30 @@ export function ImageCompressor() {
 
       const files = e.dataTransfer.files;
       if (files && files.length > 0) {
-        addImages(files);
+        handleAddFiles(files);
       }
     },
-    [addImages]
+    [handleAddFiles]
   );
 
   const handleFileSelect = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
       if (files && files.length > 0) {
-        addImages(files);
+        handleAddFiles(files);
       }
       // Reset input value to allow selecting the same file again
       e.target.value = '';
     },
-    [addImages]
+    [handleAddFiles]
   );
 
   const handleDownloadSingle = useCallback((image: ImageFile) => {
     if (image.compressedFile) {
       saveAs(image.compressedFile, image.compressedFile.name);
+      showToast(`Downloaded ${image.compressedFile.name}`, 'success');
     }
-  }, []);
+  }, [showToast]);
 
   const handleDownloadAll = useCallback(async () => {
     const completedImages = images.filter(
@@ -234,7 +253,8 @@ export function ImageCompressor() {
 
     const content = await zip.generateAsync({ type: 'blob' });
     saveAs(content, 'compressed-images.zip');
-  }, [images, handleDownloadSingle]);
+    showToast(`Downloaded ${completedImages.length} images as .zip`, 'success');
+  }, [images, handleDownloadSingle, showToast]);
 
   const completedCount = images.filter(
     (img) => img.status === 'completed'
@@ -297,7 +317,7 @@ export function ImageCompressor() {
             onChange={(e) =>
               setOptions((prev) => ({
                 ...prev,
-                maxWidth: Number(e.target.value) || 1920,
+                maxWidth: Math.min(MAX_DIMENSION, Math.max(MIN_DIMENSION, Number(e.target.value) || MIN_DIMENSION)),
               }))
             }
             className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -321,7 +341,7 @@ export function ImageCompressor() {
             onChange={(e) =>
               setOptions((prev) => ({
                 ...prev,
-                maxHeight: Number(e.target.value) || 1080,
+                maxHeight: Math.min(MAX_DIMENSION, Math.max(MIN_DIMENSION, Number(e.target.value) || MIN_DIMENSION)),
               }))
             }
             className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -390,20 +410,7 @@ export function ImageCompressor() {
           className="hidden"
           aria-hidden="true"
         />
-        <svg
-          className="w-12 h-12 mx-auto text-slate-400 mb-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
+        <UploadCloud className="w-12 h-12 mx-auto text-slate-400 mb-4" strokeWidth={1.5} aria-hidden="true" />
         <p className="text-lg text-slate-300 mb-2">
           {isDragging
             ? 'Drop images here'
@@ -430,12 +437,12 @@ export function ImageCompressor() {
           </Button>
 
           {completedCount > 0 && (
-            <Button variant="secondary" size="lg" onClick={handleDownloadAll}>
+            <Button variant="secondary" size="lg" onClick={handleDownloadAll} leftIcon={<Download className="w-4 h-4" />}>
               Download All ({completedCount})
             </Button>
           )}
 
-          <Button variant="outline" size="lg" onClick={clearImages}>
+          <Button variant="outline" size="lg" onClick={clearImages} leftIcon={<Trash2 className="w-4 h-4" />}>
             Clear All
           </Button>
         </div>

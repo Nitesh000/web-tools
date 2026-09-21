@@ -1,7 +1,8 @@
 import * as pdfjs from 'pdfjs-dist'
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 
-// Set worker source
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
+// Bundle the worker locally (avoids CDN 404s/CSP issues and keeps processing fully client-side)
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
 export type OutputFormat = 'jpg' | 'png' | 'webp'
 

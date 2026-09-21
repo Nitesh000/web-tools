@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import { Button } from '../../common/Button';
+import { JsonHighlight } from '../../common/JsonHighlight';
 
 type IndentationType = '2-spaces' | '4-spaces' | 'tabs';
 type OutputFormat = 'json' | 'yaml' | 'typescript' | 'xml';
@@ -252,23 +253,6 @@ function buildTree(data: unknown, key: string = 'root', path: string = ''): Tree
 }
 
 // Syntax highlighting for JSON
-function highlightJSON(json: string): { html: string; lines: string[] } {
-  const lines = json.split('\n');
-  const highlightedLines = lines.map((line) => {
-    return line
-      .replace(/"([^"\\]|\\.)*"(?=\s*:)/g, '<span class="text-purple-400">$&</span>') // keys
-      .replace(/"([^"\\]|\\.)*"(?!\s*:)/g, '<span class="text-green-400">$&</span>') // strings
-      .replace(/\b(true|false)\b/g, '<span class="text-orange-400">$&</span>') // booleans
-      .replace(/\b(null)\b/g, '<span class="text-red-400">$&</span>') // null
-      .replace(/\b(-?\d+\.?\d*(?:[eE][+-]?\d+)?)\b(?=\s*[,\]\}]|\s*$)/g, '<span class="text-blue-400">$&</span>'); // numbers
-  });
-
-  return {
-    html: highlightedLines.join('\n'),
-    lines,
-  };
-}
-
 // Compare two JSON objects
 function compareJSON(
   obj1: unknown,
@@ -632,13 +616,8 @@ export function JSONFormatter() {
     URL.revokeObjectURL(url);
   }, [output, outputFormat]);
 
-  // Highlighted output with line numbers
-  const highlightedOutput = useMemo(() => {
-    if (!output || outputFormat !== 'json') {
-      return { html: output, lines: output.split('\n') };
-    }
-    return highlightJSON(output);
-  }, [output, outputFormat]);
+  // Line numbers for the output panel (JSON gets token highlighting, other formats render as plain text)
+  const outputLines = useMemo(() => output.split('\n'), [output]);
 
   // Auto-format on input change with debounce
   useEffect(() => {
@@ -850,11 +829,11 @@ export function JSONFormatter() {
               {outputFormat === 'json' && output ? (
                 <code className="flex">
                   <span className="select-none pr-4 text-slate-500 border-r border-slate-700 mr-4">
-                    {highlightedOutput.lines.map((_, i) => (
+                    {outputLines.map((_, i) => (
                       <div key={i}>{i + 1}</div>
                     ))}
                   </span>
-                  <span dangerouslySetInnerHTML={{ __html: highlightedOutput.html }} />
+                  <span className="whitespace-pre"><JsonHighlight json={output} /></span>
                 </code>
               ) : (
                 <code>{output || 'Output will appear here...'}</code>

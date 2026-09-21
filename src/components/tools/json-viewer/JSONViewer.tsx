@@ -1,4 +1,19 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import {
+  ChevronDown,
+  ChevronRight,
+  ClipboardPaste,
+  FileJson,
+  Copy,
+  Download,
+  Maximize2,
+  Minimize2,
+  AlertCircle,
+  CheckCircle2,
+  Search,
+} from 'lucide-react';
+import { JsonHighlight } from '../../common/JsonHighlight';
+import { useToast } from '../../common/Toast';
 
 interface TreeNodeProps {
   keyName: string | number;
@@ -51,7 +66,7 @@ function TreeNode({ keyName, value, depth, searchQuery, path, expandedPaths, onT
       >
         {isObject ? (
           <span className="w-4 h-4 flex items-center justify-center text-gray-500 mr-1 flex-shrink-0">
-            {isExpanded ? '▼' : '▶'}
+            {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </span>
         ) : (
           <span className="w-4 h-4 mr-1 flex-shrink-0" />
@@ -85,6 +100,7 @@ function TreeNode({ keyName, value, depth, searchQuery, path, expandedPaths, onT
 }
 
 export function JSONViewer() {
+  const { showToast } = useToast();
   const [jsonInput, setJsonInput] = useState('');
   const [parsedJson, setParsedJson] = useState<unknown>(null);
   const [error, setError] = useState<string | null>(null);
@@ -169,11 +185,29 @@ export function JSONViewer() {
     setExpandedPaths(new Set(['root']));
   }, []);
 
-  const copyToClipboard = useCallback(async () => {
-    if (parsedJson !== null) {
-      await navigator.clipboard.writeText(JSON.stringify(parsedJson, null, indentation));
+  const pasteFromClipboard = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setJsonInput(text);
+      } else {
+        textareaRef.current?.focus();
+      }
+    } catch {
+      showToast('Clipboard access denied - paste manually', 'error');
+      textareaRef.current?.focus();
     }
-  }, [parsedJson, indentation]);
+  }, [showToast]);
+
+  const copyToClipboard = useCallback(async () => {
+    if (parsedJson === null) return;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(parsedJson, null, indentation));
+      showToast('JSON copied to clipboard', 'success');
+    } catch {
+      showToast('Failed to copy', 'error');
+    }
+  }, [parsedJson, indentation, showToast]);
 
   const downloadJson = useCallback(() => {
     if (parsedJson === null) return;
@@ -184,7 +218,8 @@ export function JSONViewer() {
     a.download = 'data.json';
     a.click();
     URL.revokeObjectURL(url);
-  }, [parsedJson, indentation]);
+    showToast('Downloaded data.json', 'success');
+  }, [parsedJson, indentation, showToast]);
 
   const formatJson = useCallback(() => {
     if (!jsonInput.trim()) return;
@@ -248,10 +283,10 @@ export function JSONViewer() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 p-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <button
-          onClick={() => textareaRef.current?.focus()}
-          className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          onClick={pasteFromClipboard}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
-          Paste JSON
+          <ClipboardPaste className="w-4 h-4" /> Paste JSON
         </button>
         <button
           onClick={loadSampleJson}
@@ -277,16 +312,16 @@ export function JSONViewer() {
         <button
           onClick={copyToClipboard}
           disabled={parsedJson === null}
-          className="px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Copy
+          <Copy className="w-4 h-4" /> Copy
         </button>
         <button
           onClick={downloadJson}
           disabled={parsedJson === null}
-          className="px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Download
+          <Download className="w-4 h-4" /> Download
         </button>
 
         <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
@@ -305,23 +340,10 @@ export function JSONViewer() {
 
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
-          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-1"
+          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-1.5"
         >
-          {isFullscreen ? (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              Exit Fullscreen
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-              </svg>
-              Fullscreen
-            </>
-          )}
+          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
         </button>
       </div>
 
@@ -333,17 +355,13 @@ export function JSONViewer() {
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Input</span>
             {error && (
               <span className="text-xs text-red-500 flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
+                <AlertCircle className="w-3.5 h-3.5" />
                 {error}
               </span>
             )}
             {!error && parsedJson !== null && (
               <span className="text-xs text-green-500 flex items-center gap-1">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 Valid JSON
               </span>
             )}
@@ -404,13 +422,16 @@ export function JSONViewer() {
             <div className="flex-1" />
 
             {viewMode === 'tree' && (
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search keys/values..."
-                className="px-2 py-1 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 w-40"
-              />
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search keys/values..."
+                  className="pl-7 pr-2 py-1 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 w-40"
+                />
+              </div>
             )}
           </div>
 
@@ -419,9 +440,7 @@ export function JSONViewer() {
             {parsedJson === null ? (
               <div className="h-full flex items-center justify-center text-gray-400 dark:text-gray-600">
                 <div className="text-center">
-                  <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+                  <FileJson className="w-16 h-16 mx-auto mb-4 opacity-50" strokeWidth={1} />
                   <p>Paste JSON to view</p>
                 </div>
               </div>
@@ -446,13 +465,13 @@ export function JSONViewer() {
                         {idx + 1}
                       </span>
                     )}
-                    <pre className="flex-1 whitespace-pre-wrap break-all text-gray-800 dark:text-gray-200">{line}</pre>
+                    <pre className="flex-1 whitespace-pre-wrap break-all text-gray-800 dark:text-gray-200"><JsonHighlight json={line} /></pre>
                   </div>
                 ))}
               </div>
             ) : (
               <pre className="p-4 font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
-                {getFormattedJson}
+                <JsonHighlight json={getFormattedJson} />
               </pre>
             )}
           </div>

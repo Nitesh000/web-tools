@@ -1,7 +1,15 @@
 import { Link } from 'react-router-dom';
+import { Image, Globe, Lock, Monitor, FileText } from 'lucide-react';
 import { SEOHead } from '../seo/SEOHead';
 import { SITE_CONFIG } from '../utils/constants';
 import { getAllArticles, getAllCategories, type BlogArticle } from './blog/articles';
+
+const CATEGORY_ICONS: Record<string, typeof Image> = {
+  'Image Editing': Image,
+  'Web Development': Globe,
+  Security: Lock,
+  Technology: Monitor,
+};
 
 function ArticleCard({ article }: { article: BlogArticle }) {
   return (
@@ -9,12 +17,10 @@ function ArticleCard({ article }: { article: BlogArticle }) {
       {/* Featured Image */}
       <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 relative overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-6xl opacity-50">
-            {article.category === 'Image Editing' && '🖼️'}
-            {article.category === 'Web Development' && '🌐'}
-            {article.category === 'Security' && '🔒'}
-            {article.category === 'Technology' && '💻'}
-          </span>
+          {(() => {
+            const CategoryIcon = CATEGORY_ICONS[article.category] ?? FileText;
+            return <CategoryIcon className="w-16 h-16 opacity-40 text-gray-700 dark:text-gray-300" aria-hidden="true" />;
+          })()}
         </div>
         {/* Category Badge */}
         <div className="absolute top-4 left-4">
@@ -145,7 +151,7 @@ export default function BlogPage() {
               </div>
             ) : (
               <div className="text-center py-16">
-                <div className="text-6xl mb-4">📝</div>
+                <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" aria-hidden="true" />
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   No Articles Yet
                 </h2>

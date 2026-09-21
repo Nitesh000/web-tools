@@ -1,10 +1,37 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type ViteDevServer, type PreviewServer, type Connect } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
+// Cross-origin isolation (SharedArrayBuffer) is only needed on the background remover page.
+// Applying it site-wide would break Google AdSense, since COEP:require-corp blocks
+// cross-origin ad iframes/scripts that don't send a matching CORP/CORS header.
+function crossOriginIsolatePlugin() {
+  return {
+    name: 'cross-origin-isolate-background-remover',
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use(((req, res, next) => {
+        if (req.url?.startsWith('/background-remover')) {
+          res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
+          res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+        }
+        next()
+      }) as Connect.NextHandleFunction)
+    },
+    configurePreviewServer(server: PreviewServer) {
+      server.middlewares.use(((req, res, next) => {
+        if (req.url?.startsWith('/background-remover')) {
+          res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
+          res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+        }
+        next()
+      }) as Connect.NextHandleFunction)
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), crossOriginIsolatePlugin()],
 
   resolve: {
     alias: {

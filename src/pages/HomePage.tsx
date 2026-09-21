@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Star } from 'lucide-react';
 import { TOOLS, BENEFITS, STATS, COMPARISON_FEATURES, SITE_CONFIG } from '../utils/constants';
 import { useAppStore } from '../store/app-store';
+import { AppIcon } from '../components/common/ToolIcon';
 
 // Tool Card Component
 function ToolCard({ tool }: { tool: typeof TOOLS[0] }) {
@@ -28,21 +30,11 @@ function ToolCard({ tool }: { tool: typeof TOOLS[0] }) {
         className="absolute top-4 right-4 text-gray-400 hover:text-yellow-500 transition-colors"
         aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
       >
-        {isFavorite ? (
-          <svg className="w-5 h-5 fill-yellow-500" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ) : (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-          </svg>
-        )}
+        <Star className={`w-5 h-5 ${isFavorite ? 'fill-yellow-500 text-yellow-500' : ''}`} />
       </button>
 
       <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${tool.bgColor} mb-4`}>
-        <span className="text-2xl" role="img" aria-label={tool.name}>
-          {tool.icon}
-        </span>
+        <AppIcon name={tool.icon} className={`w-6 h-6 ${tool.color}`} />
       </div>
 
       <h3 className={`text-lg font-semibold mb-2 ${tool.color} dark:opacity-90 group-hover:underline`}>
@@ -175,8 +167,8 @@ function BenefitsSection() {
               key={benefit.title}
               className="flex items-start gap-4 p-6 rounded-xl bg-gray-50 dark:bg-gray-700/50"
             >
-              <span className="text-3xl" role="img" aria-hidden="true">
-                {benefit.icon}
+              <span className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                <AppIcon name={benefit.icon} className="w-6 h-6" />
               </span>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
