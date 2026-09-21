@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 import { Undo2, Redo2, ArrowUpDown, Copy, Check, Trash2, Maximize2, Minimize2 } from 'lucide-react';
 import { useFullscreen } from '../../../hooks/useFullscreen';
+import { Button } from '../../common/Button';
 import { useToast } from '../../common/Toast';
 
 type CaseType =
@@ -275,19 +276,15 @@ export function TextCaseConverter() {
     <div
       className={clsx(
         isFullscreen
-          ? 'fixed inset-0 z-50 bg-white dark:bg-slate-900 overflow-y-auto p-6 space-y-6'
+          ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900 overflow-y-auto p-6 space-y-6'
           : 'space-y-6'
       )}
     >
       {/* Fullscreen toggle */}
       <div className="flex justify-end">
-        <button
-          onClick={toggleFullscreen}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-slate-700/50 text-slate-300 hover:bg-slate-700 transition-colors"
-        >
-          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+        <Button variant="secondary" size="sm" onClick={toggleFullscreen} leftIcon={isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}>
           {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-        </button>
+        </Button>
       </div>
 
       {/* Input Section */}
@@ -295,7 +292,7 @@ export function TextCaseConverter() {
         <div className="flex items-center justify-between mb-2">
           <label
             htmlFor="input-text"
-            className="block text-sm font-medium text-slate-300"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Input Text
           </label>
@@ -306,8 +303,8 @@ export function TextCaseConverter() {
               className={clsx(
                 'p-1.5 rounded-lg transition-colors',
                 canUndo
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-700'
-                  : 'text-slate-600 cursor-not-allowed'
+                  ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700'
+                  : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
               )}
               aria-label="Undo"
               title="Undo (Ctrl+Z)"
@@ -320,8 +317,8 @@ export function TextCaseConverter() {
               className={clsx(
                 'p-1.5 rounded-lg transition-colors',
                 canRedo
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-700'
-                  : 'text-slate-600 cursor-not-allowed'
+                  ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700'
+                  : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
               )}
               aria-label="Redo"
               title="Redo (Ctrl+Y)"
@@ -347,11 +344,11 @@ export function TextCaseConverter() {
           }}
           placeholder="Enter or paste your text here..."
           className={clsx(
-            'w-full px-4 py-3 rounded-xl resize-y',
+            'w-full px-4 py-3 rounded-lg resize-y',
             isFullscreen ? 'h-[35vh]' : 'h-40',
-            'bg-slate-900/50 border border-slate-600/50',
-            'text-white placeholder-slate-500',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'bg-white border border-gray-300 dark:bg-gray-900/50 dark:border-gray-600/50',
+            'text-gray-900 placeholder-gray-400 dark:text-white dark:placeholder-gray-500',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500',
             'transition-colors'
           )}
           aria-describedby="text-stats"
@@ -360,32 +357,32 @@ export function TextCaseConverter() {
         {/* Statistics */}
         <div
           id="text-stats"
-          className="mt-2 flex flex-wrap gap-4 text-sm text-slate-400"
+          className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400"
         >
           <span>
-            <span className="font-medium text-slate-300">{stats.characters}</span> characters
+            <span className="font-medium text-gray-700 dark:text-gray-300">{stats.characters}</span> characters
           </span>
           <span>
-            <span className="font-medium text-slate-300">{stats.charactersNoSpaces}</span> without spaces
+            <span className="font-medium text-gray-700 dark:text-gray-300">{stats.charactersNoSpaces}</span> without spaces
           </span>
           <span>
-            <span className="font-medium text-slate-300">{stats.words}</span> words
+            <span className="font-medium text-gray-700 dark:text-gray-300">{stats.words}</span> words
           </span>
           <span>
-            <span className="font-medium text-slate-300">{stats.lines}</span> lines
+            <span className="font-medium text-gray-700 dark:text-gray-300">{stats.lines}</span> lines
           </span>
           <span>
-            <span className="font-medium text-slate-300">{stats.sentences}</span> sentences
+            <span className="font-medium text-gray-700 dark:text-gray-300">{stats.sentences}</span> sentences
           </span>
           <span>
-            <span className="font-medium text-slate-300">{stats.paragraphs}</span> paragraphs
+            <span className="font-medium text-gray-700 dark:text-gray-300">{stats.paragraphs}</span> paragraphs
           </span>
         </div>
       </div>
 
       {/* Conversion Buttons */}
       <div>
-        <h2 className="text-sm font-medium text-slate-300 mb-3">
+        <h2 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Convert to:
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
@@ -395,10 +392,10 @@ export function TextCaseConverter() {
               onClick={() => handleConvert(button.type)}
               className={clsx(
                 'px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                'border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800',
+                'border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800',
                 activeCase === button.type
                   ? 'bg-blue-600 border-blue-500 text-white'
-                  : 'bg-slate-700/50 border-slate-600/50 text-slate-300 hover:bg-slate-700 hover:border-slate-500'
+                  : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:border-gray-500'
               )}
               title={`Example: ${button.example}`}
               aria-pressed={activeCase === button.type}
@@ -414,11 +411,11 @@ export function TextCaseConverter() {
         <div className="flex items-center justify-between mb-2">
           <label
             htmlFor="output-text"
-            className="block text-sm font-medium text-slate-300"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Converted Text
             {activeCase && (
-              <span className="ml-2 text-blue-400">
+              <span className="ml-2 text-blue-600 dark:text-blue-400">
                 ({caseButtons.find((b) => b.type === activeCase)?.label})
               </span>
             )}
@@ -431,8 +428,8 @@ export function TextCaseConverter() {
                 'px-3 py-1.5 rounded-lg text-sm transition-colors',
                 'flex items-center gap-1.5',
                 outputText
-                  ? 'text-slate-300 hover:text-white hover:bg-slate-700'
-                  : 'text-slate-600 cursor-not-allowed'
+                  ? 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700'
+                  : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
               )}
               title="Use converted text as input"
             >
@@ -448,8 +445,8 @@ export function TextCaseConverter() {
                 outputText
                   ? copied
                     ? 'bg-green-600 text-white'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700'
-                  : 'text-slate-600 cursor-not-allowed'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700'
+                  : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
               )}
               aria-label={copied ? 'Copied!' : 'Copy to clipboard'}
             >
@@ -473,11 +470,11 @@ export function TextCaseConverter() {
           readOnly
           placeholder="Converted text will appear here..."
           className={clsx(
-            'w-full px-4 py-3 rounded-xl resize-y',
+            'w-full px-4 py-3 rounded-lg resize-y',
             isFullscreen ? 'h-[35vh]' : 'h-40',
-            'bg-slate-900/50 border border-slate-600/50',
-            'text-white placeholder-slate-500',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'bg-white border border-gray-300 dark:bg-gray-900/50 dark:border-gray-600/50',
+            'text-gray-900 placeholder-gray-400 dark:text-white dark:placeholder-gray-500',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500',
             'transition-colors'
           )}
         />
@@ -492,8 +489,8 @@ export function TextCaseConverter() {
             'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
             'flex items-center gap-2',
             inputText || outputText
-              ? 'bg-red-600/20 border border-red-500/50 text-red-400 hover:bg-red-600/30'
-              : 'bg-slate-700/30 border border-slate-600/30 text-slate-600 cursor-not-allowed'
+              ? 'bg-red-50 border border-red-300 text-red-600 hover:bg-red-100 dark:bg-red-600/20 dark:border-red-500/50 dark:text-red-400 dark:hover:bg-red-600/30'
+              : 'bg-gray-50 border border-gray-200 text-gray-300 dark:bg-gray-700/30 dark:border-gray-600/30 dark:text-gray-600 cursor-not-allowed'
           )}
         >
           <Trash2 className="w-4 h-4" />

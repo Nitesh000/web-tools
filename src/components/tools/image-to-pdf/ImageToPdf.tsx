@@ -1,7 +1,9 @@
 import { useCallback } from 'react'
 import { useDropzone, type FileRejection } from 'react-dropzone'
-import { UploadCloud, ChevronUp, ChevronDown, X, Loader2, FileDown } from 'lucide-react'
+import { UploadCloud, ChevronUp, ChevronDown, X, FileDown } from 'lucide-react'
 import { useImageToPdf } from '../../../hooks/useImageToPdf'
+import { Button } from '../../common/Button'
+import { Select } from '../../common/Select'
 import { useToast } from '../../common/Toast'
 
 export function ImageToPdf() {
@@ -56,38 +58,35 @@ export function ImageToPdf() {
       {/* File Upload */}
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
           isDragActive
-            ? 'border-blue-500 bg-blue-500/10'
-            : 'border-slate-600 hover:border-blue-500 hover:bg-slate-700/50'
+            ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
+            : 'border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500'
         }`}
       >
         <input {...getInputProps()} />
-        <UploadCloud className="w-12 h-12 mx-auto mb-4 text-slate-400" strokeWidth={1.5} />
-        <p className="text-lg font-medium text-white mb-2">
+        <UploadCloud className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
+        <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
           {isDragActive ? 'Drop your images here' : 'Drag & drop images here'}
         </p>
-        <p className="text-slate-400">or click to browse • JPG, PNG, WebP, GIF</p>
+        <p className="text-gray-500 dark:text-gray-400">or click to browse • JPG, PNG, WebP, GIF</p>
       </div>
 
       {/* Image List */}
       {files.length > 0 && (
         <>
           <div className="flex justify-between items-center">
-            <p className="text-slate-300">{files.length} image{files.length !== 1 ? 's' : ''} selected</p>
-            <button
-              onClick={clearFiles}
-              className="px-3 py-1.5 text-sm bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-colors"
-            >
+            <p className="text-gray-700 dark:text-gray-300">{files.length} image{files.length !== 1 ? 's' : ''} selected</p>
+            <Button size="sm" variant="outline" onClick={clearFiles} className="!border-red-300 !text-red-600 hover:!bg-red-50 dark:!border-red-700 dark:!text-red-400 dark:hover:!bg-red-900/20">
               Clear All
-            </button>
+            </Button>
           </div>
 
           <div className="space-y-2">
             {files.map((file, index) => (
               <div
                 key={file.id}
-                className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg"
+                className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
               >
                 <img
                   src={file.preview}
@@ -95,8 +94,8 @@ export function ImageToPdf() {
                   className="w-16 h-16 object-cover rounded"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-white truncate">{file.file.name}</p>
-                  <p className="text-sm text-slate-400">
+                  <p className="font-medium text-gray-900 dark:text-white truncate">{file.file.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {(file.file.size / 1024).toFixed(1)} KB
                   </p>
                 </div>
@@ -104,7 +103,7 @@ export function ImageToPdf() {
                   <button
                     onClick={() => moveImage(index, 'up')}
                     disabled={index === 0}
-                    className="p-1.5 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     title="Move up"
                   >
                     <ChevronUp className="w-4 h-4" />
@@ -112,14 +111,14 @@ export function ImageToPdf() {
                   <button
                     onClick={() => moveImage(index, 'down')}
                     disabled={index === files.length - 1}
-                    className="p-1.5 text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     title="Move down"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => removeFile(file.id)}
-                    className="p-1.5 text-red-400 hover:text-red-300 transition-colors"
+                    className="p-1.5 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
                     title="Remove"
                   >
                     <X className="w-4 h-4" />
@@ -130,44 +129,34 @@ export function ImageToPdf() {
           </div>
 
           {/* Settings */}
-          <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-slate-700">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Page Size
-              </label>
-              <select
-                value={pageSize}
-                onChange={(e) => setPageSize(e.target.value as 'a4' | 'letter' | 'fit')}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="a4">A4 (210 x 297 mm)</option>
-                <option value="letter">Letter (8.5 x 11 in)</option>
-                <option value="fit">Fit to Image</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Quality
-              </label>
-              <select
-                value={quality}
-                onChange={(e) => setQuality(e.target.value as 'high' | 'low')}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="high">High Quality (larger PDF)</option>
-                <option value="low">Low Quality (smaller PDF)</option>
-              </select>
-            </div>
+          <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Select
+              label="Page Size"
+              value={pageSize}
+              onChange={(e) => setPageSize(e.target.value as 'a4' | 'letter' | 'fit')}
+            >
+              <option value="a4">A4 (210 x 297 mm)</option>
+              <option value="letter">Letter (8.5 x 11 in)</option>
+              <option value="fit">Fit to Image</option>
+            </Select>
+            <Select
+              label="Quality"
+              value={quality}
+              onChange={(e) => setQuality(e.target.value as 'high' | 'low')}
+            >
+              <option value="high">High Quality (larger PDF)</option>
+              <option value="low">Low Quality (smaller PDF)</option>
+            </Select>
           </div>
 
           {/* Conversion Progress */}
           {isConverting && (
             <div className="space-y-2">
-              <div className="flex justify-between text-sm text-slate-300">
+              <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                 <span>Creating PDF...</span>
                 <span>{Math.round(progress)}%</span>
               </div>
-              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-green-500 transition-all duration-300"
                   style={{ width: `${progress}%` }}
@@ -177,7 +166,9 @@ export function ImageToPdf() {
           )}
 
           {/* Convert Button */}
-          <button
+          <Button
+            size="lg"
+            fullWidth
             onClick={async () => {
               try {
                 await convert()
@@ -187,20 +178,11 @@ export function ImageToPdf() {
               }
             }}
             disabled={files.length === 0 || isConverting}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            isLoading={isConverting}
+            leftIcon={!isConverting ? <FileDown className="w-5 h-5" /> : undefined}
           >
-            {isConverting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Creating PDF...
-              </>
-            ) : (
-              <>
-                <FileDown className="w-5 h-5" />
-                Create PDF from {files.length} Image{files.length !== 1 ? 's' : ''}
-              </>
-            )}
-          </button>
+            {isConverting ? 'Creating PDF...' : `Create PDF from ${files.length} Image${files.length !== 1 ? 's' : ''}`}
+          </Button>
         </>
       )}
     </div>

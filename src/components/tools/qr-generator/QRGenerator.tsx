@@ -38,30 +38,30 @@ function ColorPickerPopover({ color, onChange, label }: ColorPickerPopoverProps)
 
   return (
     <div className="relative" ref={popoverRef}>
-      <label className="block text-sm font-medium text-slate-300 mb-2">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         {label}
       </label>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 w-full p-2 bg-slate-700/50 border border-slate-600/50 rounded-lg hover:bg-slate-700 transition-colors"
+        className="flex items-center gap-2 w-full p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors dark:bg-gray-700/50 dark:border-gray-600/50 dark:hover:bg-gray-700"
         aria-label={`Select ${label.toLowerCase()}`}
       >
         <span
-          className="w-8 h-8 rounded border border-slate-500"
+          className="w-8 h-8 rounded border border-gray-300 dark:border-gray-500"
           style={{ backgroundColor: color }}
           aria-hidden="true"
         />
-        <span className="text-white font-mono text-sm">{color}</span>
+        <span className="text-gray-900 dark:text-white font-mono text-sm">{color}</span>
       </button>
       {isOpen && (
-        <div className="absolute z-50 top-full mt-2 p-3 bg-slate-800 border border-slate-600 rounded-lg shadow-xl">
+        <div className="absolute z-50 top-full mt-2 p-3 bg-white border border-gray-300 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-600 dark:shadow-xl">
           <HexColorPicker color={color} onChange={onChange} />
           <input
             type="text"
             value={color}
             onChange={(e) => onChange(e.target.value)}
-            className="mt-3 w-full p-2 bg-slate-700 border border-slate-600 rounded text-white text-sm font-mono"
+            className="mt-3 w-full p-2 bg-white border border-gray-300 rounded text-gray-900 text-sm font-mono dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="#000000"
             aria-label={`${label} hex value`}
           />
@@ -197,7 +197,7 @@ export function QRGenerator() {
       case 'url':
         return (
           <div>
-            <label htmlFor="url-input" className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Website URL
             </label>
             <input
@@ -206,7 +206,7 @@ export function QRGenerator() {
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://example.com"
-              className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
             />
           </div>
         );
@@ -214,7 +214,7 @@ export function QRGenerator() {
       case 'text':
         return (
           <div>
-            <label htmlFor="text-input" className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="text-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Text Content
             </label>
             <textarea
@@ -223,7 +223,7 @@ export function QRGenerator() {
               onChange={(e) => setTextInput(e.target.value)}
               placeholder="Enter your text here..."
               rows={4}
-              className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500 resize-none"
             />
           </div>
         );
@@ -232,7 +232,7 @@ export function QRGenerator() {
         return (
           <div className="space-y-4">
             <div>
-              <label htmlFor="email-address" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
               </label>
               <input
@@ -241,11 +241,11 @@ export function QRGenerator() {
                 value={emailInput.email}
                 onChange={(e) => setEmailInput({ ...emailInput, email: e.target.value })}
                 placeholder="example@email.com"
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
               />
             </div>
             <div>
-              <label htmlFor="email-subject" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="email-subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Subject (Optional)
               </label>
               <input
@@ -254,11 +254,11 @@ export function QRGenerator() {
                 value={emailInput.subject}
                 onChange={(e) => setEmailInput({ ...emailInput, subject: e.target.value })}
                 placeholder="Email subject"
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
               />
             </div>
             <div>
-              <label htmlFor="email-body" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="email-body" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Body (Optional)
               </label>
               <textarea
@@ -267,7 +267,7 @@ export function QRGenerator() {
                 onChange={(e) => setEmailInput({ ...emailInput, body: e.target.value })}
                 placeholder="Email body"
                 rows={3}
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500 resize-none"
               />
             </div>
           </div>
@@ -276,7 +276,7 @@ export function QRGenerator() {
       case 'phone':
         return (
           <div>
-            <label htmlFor="phone-input" className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="phone-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Phone Number
             </label>
             <input
@@ -285,7 +285,7 @@ export function QRGenerator() {
               value={phoneInput}
               onChange={(e) => setPhoneInput(e.target.value)}
               placeholder="+1 234 567 8900"
-              className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
             />
           </div>
         );
@@ -294,7 +294,7 @@ export function QRGenerator() {
         return (
           <div className="space-y-4">
             <div>
-              <label htmlFor="wifi-ssid" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="wifi-ssid" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Network Name (SSID)
               </label>
               <input
@@ -303,11 +303,11 @@ export function QRGenerator() {
                 value={wifiInput.ssid}
                 onChange={(e) => setWifiInput({ ...wifiInput, ssid: e.target.value })}
                 placeholder="My WiFi Network"
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
               />
             </div>
             <div>
-              <label htmlFor="wifi-password" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="wifi-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <input
@@ -316,18 +316,18 @@ export function QRGenerator() {
                 value={wifiInput.password}
                 onChange={(e) => setWifiInput({ ...wifiInput, password: e.target.value })}
                 placeholder="Network password"
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
               />
             </div>
             <div>
-              <label htmlFor="wifi-encryption" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="wifi-encryption" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Encryption
               </label>
               <select
                 id="wifi-encryption"
                 value={wifiInput.encryption}
                 onChange={(e) => setWifiInput({ ...wifiInput, encryption: e.target.value as WiFiData['encryption'] })}
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white"
               >
                 <option value="WPA">WPA/WPA2</option>
                 <option value="WEP">WEP</option>
@@ -340,9 +340,9 @@ export function QRGenerator() {
                 type="checkbox"
                 checked={wifiInput.hidden}
                 onChange={(e) => setWifiInput({ ...wifiInput, hidden: e.target.checked })}
-                className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-800"
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
               />
-              <label htmlFor="wifi-hidden" className="text-sm text-slate-300">
+              <label htmlFor="wifi-hidden" className="text-sm text-gray-700 dark:text-gray-300">
                 Hidden Network
               </label>
             </div>
@@ -354,7 +354,7 @@ export function QRGenerator() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="vcard-firstname" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="vcard-firstname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   First Name *
                 </label>
                 <input
@@ -363,12 +363,12 @@ export function QRGenerator() {
                   value={vcardInput.firstName}
                   onChange={(e) => setVcardInput({ ...vcardInput, firstName: e.target.value })}
                   placeholder="John"
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="vcard-lastname" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="vcard-lastname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Last Name *
                 </label>
                 <input
@@ -377,14 +377,14 @@ export function QRGenerator() {
                   value={vcardInput.lastName}
                   onChange={(e) => setVcardInput({ ...vcardInput, lastName: e.target.value })}
                   placeholder="Doe"
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
                   required
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="vcard-org" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="vcard-org" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Organization
                 </label>
                 <input
@@ -393,11 +393,11 @@ export function QRGenerator() {
                   value={vcardInput.organization}
                   onChange={(e) => setVcardInput({ ...vcardInput, organization: e.target.value })}
                   placeholder="Company Inc."
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
                 />
               </div>
               <div>
-                <label htmlFor="vcard-title" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="vcard-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Job Title
                 </label>
                 <input
@@ -406,13 +406,13 @@ export function QRGenerator() {
                   value={vcardInput.title}
                   onChange={(e) => setVcardInput({ ...vcardInput, title: e.target.value })}
                   placeholder="Software Engineer"
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="vcard-email" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="vcard-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Email
                 </label>
                 <input
@@ -421,11 +421,11 @@ export function QRGenerator() {
                   value={vcardInput.email}
                   onChange={(e) => setVcardInput({ ...vcardInput, email: e.target.value })}
                   placeholder="john@example.com"
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
                 />
               </div>
               <div>
-                <label htmlFor="vcard-phone" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="vcard-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Phone
                 </label>
                 <input
@@ -434,12 +434,12 @@ export function QRGenerator() {
                   value={vcardInput.phone}
                   onChange={(e) => setVcardInput({ ...vcardInput, phone: e.target.value })}
                   placeholder="+1 234 567 8900"
-                  className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="vcard-website" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="vcard-website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Website
               </label>
               <input
@@ -448,11 +448,11 @@ export function QRGenerator() {
                 value={vcardInput.website}
                 onChange={(e) => setVcardInput({ ...vcardInput, website: e.target.value })}
                 placeholder="https://example.com"
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
               />
             </div>
             <div>
-              <label htmlFor="vcard-address" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="vcard-address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Address
               </label>
               <input
@@ -461,7 +461,7 @@ export function QRGenerator() {
                 value={vcardInput.address}
                 onChange={(e) => setVcardInput({ ...vcardInput, address: e.target.value })}
                 placeholder="123 Main St, City, Country"
-                className="w-full p-3 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-white dark:placeholder-gray-500"
               />
             </div>
           </div>
@@ -478,7 +478,7 @@ export function QRGenerator() {
       <div className="space-y-6">
         {/* Input Type Selector */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-3">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             QR Code Type
           </label>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-2" role="radiogroup" aria-label="QR code type">
@@ -493,7 +493,7 @@ export function QRGenerator() {
                   'flex flex-col items-center gap-1 p-3 rounded-lg border transition-all',
                   inputType === type.value
                     ? 'bg-blue-600 border-blue-500 text-white'
-                    : 'bg-slate-700/50 border-slate-600/50 text-slate-300 hover:bg-slate-700 hover:border-slate-500'
+                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300 dark:bg-gray-700/50 dark:border-gray-600/50 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:border-gray-500'
                 )}
               >
                 <svg
@@ -517,7 +517,7 @@ export function QRGenerator() {
         </div>
 
         {/* Dynamic Input Fields */}
-        <div className="bg-slate-700/30 rounded-xl p-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
           {renderInputFields()}
         </div>
 
@@ -525,7 +525,7 @@ export function QRGenerator() {
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
           aria-expanded={showAdvanced}
         >
           <svg
@@ -542,10 +542,10 @@ export function QRGenerator() {
 
         {/* Advanced Options */}
         {showAdvanced && (
-          <div className="space-y-6 bg-slate-700/30 rounded-xl p-4 animate-in slide-in-from-top-2">
+          <div className="space-y-6 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
             {/* Size Slider */}
             <div>
-              <label htmlFor="qr-size" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="qr-size" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Size: {options.size}px
               </label>
               <input
@@ -556,9 +556,9 @@ export function QRGenerator() {
                 step="10"
                 value={options.size}
                 onChange={(e) => updateOption('size', parseInt(e.target.value))}
-                className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600 dark:bg-gray-700"
               />
-              <div className="flex justify-between text-xs text-slate-500 mt-1">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                 <span>100px</span>
                 <span>1000px</span>
               </div>
@@ -566,7 +566,7 @@ export function QRGenerator() {
 
             {/* Error Correction Level */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Error Correction Level
               </label>
               <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Error correction level">
@@ -581,11 +581,11 @@ export function QRGenerator() {
                       'p-3 rounded-lg border text-left transition-all',
                       options.errorCorrectionLevel === level.value
                         ? 'bg-blue-600 border-blue-500'
-                        : 'bg-slate-700/50 border-slate-600/50 hover:bg-slate-700'
+                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-700/50 dark:border-gray-600/50 dark:hover:bg-gray-700'
                     )}
                   >
-                    <div className="text-sm font-medium text-white">{level.label}</div>
-                    <div className="text-xs text-slate-400">{level.description}</div>
+                    <div className={clsx('text-sm font-medium', options.errorCorrectionLevel === level.value ? 'text-white' : 'text-gray-900 dark:text-white')}>{level.label}</div>
+                    <div className={clsx('text-xs', options.errorCorrectionLevel === level.value ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400')}>{level.description}</div>
                   </button>
                 ))}
               </div>
@@ -607,10 +607,10 @@ export function QRGenerator() {
 
             {/* Logo Upload */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Center Logo (Optional)
               </label>
-              <p className="text-xs text-slate-400 mb-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
                 For best results with a logo, use High error correction level.
               </p>
               <div className="flex items-center gap-4">
@@ -618,8 +618,8 @@ export function QRGenerator() {
                   className={clsx(
                     'flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors',
                     logoDataUrl
-                      ? 'border-green-500 bg-green-500/10'
-                      : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
+                      ? 'border-green-500 bg-green-50 dark:bg-green-500/10'
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700/30'
                   )}
                 >
                   <input
@@ -636,12 +636,12 @@ export function QRGenerator() {
                         alt="Logo preview"
                         className="w-8 h-8 object-contain"
                       />
-                      <span className="text-green-400 text-sm">Logo uploaded</span>
+                      <span className="text-green-600 dark:text-green-400 text-sm">Logo uploaded</span>
                     </>
                   ) : (
                     <>
                       <svg
-                        className="w-6 h-6 text-slate-400"
+                        className="w-6 h-6 text-gray-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -654,7 +654,7 @@ export function QRGenerator() {
                           d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                       </svg>
-                      <span className="text-slate-400 text-sm">Upload logo</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">Upload logo</span>
                     </>
                   )}
                 </label>
@@ -676,12 +676,12 @@ export function QRGenerator() {
 
       {/* Preview Section */}
       <div className="space-y-6 lg:sticky lg:top-6">
-        <div className="bg-slate-700/30 rounded-xl p-6 flex flex-col items-center">
-          <h3 className="text-lg font-medium text-white mb-4">Preview</h3>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 flex flex-col items-center dark:border-gray-700 dark:bg-gray-800">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Preview</h3>
 
           {/* QR Code Preview */}
           <div
-            className="relative bg-white rounded-lg p-4 shadow-lg"
+            className="relative bg-white rounded-lg border border-gray-200 p-4 shadow-sm"
             style={{ maxWidth: Math.min(options.size, 400) }}
           >
             {isGenerating ? (
@@ -697,7 +697,7 @@ export function QRGenerator() {
                 style={{ imageRendering: 'pixelated' }}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center w-64 h-64 text-slate-400">
+              <div className="flex flex-col items-center justify-center w-64 h-64 text-gray-400">
                 <QrCode className="w-16 h-16 mb-2" strokeWidth={1} aria-hidden="true" />
                 <p className="text-sm">Enter content to generate QR code</p>
               </div>
@@ -705,7 +705,7 @@ export function QRGenerator() {
           </div>
 
           {error && (
-            <p className="mt-4 text-red-400 text-sm" role="alert">
+            <p className="mt-4 text-red-600 dark:text-red-400 text-sm" role="alert">
               {error}
             </p>
           )}
@@ -749,35 +749,35 @@ export function QRGenerator() {
 
         {/* Share Buttons */}
         <div>
-          <p className="text-sm text-slate-400 mb-3">Share this tool:</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Share this tool:</p>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => handleShare('twitter')}
-              className="p-2 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors"
+              className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors dark:bg-gray-700/50 dark:hover:bg-gray-700"
               aria-label="Share on Twitter"
             >
-              <svg className="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </button>
             <button
               type="button"
               onClick={() => handleShare('facebook')}
-              className="p-2 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors"
+              className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors dark:bg-gray-700/50 dark:hover:bg-gray-700"
               aria-label="Share on Facebook"
             >
-              <svg className="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
             </button>
             <button
               type="button"
               onClick={() => handleShare('linkedin')}
-              className="p-2 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors"
+              className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors dark:bg-gray-700/50 dark:hover:bg-gray-700"
               aria-label="Share on LinkedIn"
             >
-              <svg className="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
               </svg>
             </button>

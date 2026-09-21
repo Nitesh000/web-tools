@@ -12,6 +12,9 @@ import {
   getContrastRatio,
 } from '../../../lib/color/conversions';
 import { COLOR_PALETTES, PALETTE_CATEGORIES } from '../../../data/color-palettes';
+import { Button } from '../../common/Button';
+import { Input } from '../../common/Input';
+import { Select } from '../../common/Select';
 import { useToast } from '../../common/Toast';
 
 interface SavedColor {
@@ -170,17 +173,16 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   }, [value, label, showToast]);
 
   return (
-    <button
+    <Button
+      size="sm"
+      variant={copied ? 'primary' : 'secondary'}
       onClick={handleCopy}
-      className={clsx(
-        'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-        copied ? 'bg-green-600 text-white' : 'bg-slate-600 text-slate-200 hover:bg-slate-500'
-      )}
+      leftIcon={copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+      className={copied ? 'bg-green-600 hover:bg-green-600 focus:ring-green-500 dark:bg-green-600 dark:hover:bg-green-600' : undefined}
       aria-label={`Copy ${label} value`}
     >
-      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
       {copied ? 'Copied!' : 'Copy'}
-    </button>
+    </Button>
   );
 }
 
@@ -350,19 +352,16 @@ export function ColorPicker() {
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-700 pb-4">
+      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-4 dark:border-gray-700">
         {tabs.map((tab) => (
-          <button
+          <Button
             key={tab.id}
+            variant={activeTab === tab.id ? 'primary' : 'secondary'}
             onClick={() => setActiveTab(tab.id)}
-            className={clsx(
-              'px-4 py-2 rounded-lg font-medium transition-all',
-              activeTab === tab.id ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-            )}
             aria-pressed={activeTab === tab.id}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -380,27 +379,23 @@ export function ColorPicker() {
             </div>
 
             <div className="flex items-center gap-3 justify-center flex-wrap">
-              <label htmlFor="hex-input" className="text-slate-300 font-medium">HEX:</label>
+              <label htmlFor="hex-input" className="text-gray-700 dark:text-gray-300 font-medium">HEX:</label>
               <HexColorInput
                 id="hex-input"
                 color={color}
                 onChange={setColor}
                 prefixed
-                className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center w-28 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 font-mono text-center w-28 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
-              <button
-                onClick={saveColor}
-                className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                aria-label="Save color to favorites"
-              >
-                <Star className="w-4 h-4" /> Save
-              </button>
+              <Button onClick={saveColor} leftIcon={<Star className="w-4 h-4" />} aria-label="Save color to favorites">
+                Save
+              </Button>
             </div>
 
             {/* Numeric RGB inputs */}
             <div className="grid grid-cols-3 gap-2">
               {(['r', 'g', 'b'] as const).map((channel) => (
-                <label key={channel} className="text-xs text-slate-400 uppercase text-center block">
+                <label key={channel} className="text-xs text-gray-500 dark:text-gray-400 uppercase text-center block">
                   {channel}
                   <input
                     type="number"
@@ -412,7 +407,7 @@ export function ColorPicker() {
                       const newRgb = { ...rgb, [channel]: val };
                       setColor(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
                     }}
-                    className="mt-1 w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1 w-full px-2 py-1.5 bg-white border border-gray-300 rounded-lg text-gray-900 font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </label>
               ))}
@@ -425,7 +420,7 @@ export function ColorPicker() {
                 { key: 's', max: 100, label: 'S' },
                 { key: 'l', max: 100, label: 'L' },
               ] as const).map(({ key, max, label }) => (
-                <label key={key} className="text-xs text-slate-400 uppercase text-center block">
+                <label key={key} className="text-xs text-gray-500 dark:text-gray-400 uppercase text-center block">
                   {label}
                   <input
                     type="number"
@@ -438,7 +433,7 @@ export function ColorPicker() {
                       const newRgb = hslToRgb(newHsl.h, newHsl.s, newHsl.l);
                       setColor(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
                     }}
-                    className="mt-1 w-full px-2 py-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1 w-full px-2 py-1.5 bg-white border border-gray-300 rounded-lg text-gray-900 font-mono text-center focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </label>
               ))}
@@ -446,7 +441,7 @@ export function ColorPicker() {
 
             {/* Alpha slider */}
             <div>
-              <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                 <span>Alpha / Transparency</span>
                 <span>{alphaPercent}%</span>
               </div>
@@ -456,21 +451,21 @@ export function ColorPicker() {
                 max={100}
                 value={alphaPercent}
                 onChange={(e) => setAlpha(Number(e.target.value) / 100)}
-                className="w-full accent-blue-500"
+                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600 dark:bg-gray-700"
                 aria-label="Alpha transparency"
               />
             </div>
 
             {/* Color Preview (checkerboard to show transparency) */}
             <div
-              className="relative w-full h-24 rounded-xl border border-slate-600 shadow-lg overflow-hidden"
+              className="relative w-full h-24 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm overflow-hidden"
               aria-label={`Color preview: ${hex8}`}
             >
               <div
                 className="absolute inset-0"
                 style={{
                   backgroundImage:
-                    'linear-gradient(45deg, #94a3b8 25%, transparent 25%), linear-gradient(-45deg, #94a3b8 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #94a3b8 75%), linear-gradient(-45deg, transparent 75%, #94a3b8 75%)',
+                    'linear-gradient(45deg, #e5e7eb 25%, transparent 25%), linear-gradient(-45deg, #e5e7eb 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e7eb 75%), linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)',
                   backgroundSize: '16px 16px',
                   backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
                 }}
@@ -481,16 +476,16 @@ export function ColorPicker() {
 
           {/* Color Formats */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Color Formats</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Color Formats</h3>
             <div className="space-y-2">
               {colorFormats.map((format) => (
                 <div
                   key={format.name}
-                  className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3 border border-slate-600"
+                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
                 >
                   <div className="min-w-0">
-                    <span className="text-slate-400 text-sm">{format.name}</span>
-                    <p className="text-white font-mono truncate">{format.value}</p>
+                    <span className="text-gray-500 dark:text-gray-400 text-sm">{format.name}</span>
+                    <p className="text-gray-900 dark:text-white font-mono truncate">{format.value}</p>
                   </div>
                   <CopyButton value={format.value} label={format.name} />
                 </div>
@@ -502,14 +497,14 @@ export function ColorPicker() {
 
       {/* Saved Colors */}
       {activeTab === 'picker' && savedColors.length > 0 && (
-        <div className="border-t border-slate-700 pt-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Saved Colors</h3>
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Saved Colors</h3>
           <div className="flex flex-wrap gap-2">
             {savedColors.map((saved) => (
               <div key={saved.hex} className="relative group">
                 <button
                   onClick={() => setColor(saved.hex)}
-                  className="w-12 h-12 rounded-lg border-2 border-slate-600 hover:border-blue-500 transition-colors shadow-lg"
+                  className="w-12 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 transition-colors shadow-sm"
                   style={{ backgroundColor: saved.hex }}
                   aria-label={`Select color ${saved.hex}`}
                   title={saved.hex}
@@ -531,10 +526,10 @@ export function ColorPicker() {
       {activeTab === 'harmonies' && (
         <div className="space-y-8">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-lg border border-slate-600" style={{ backgroundColor: color }} />
+            <div className="w-16 h-16 rounded-lg border border-gray-300 dark:border-gray-600" style={{ backgroundColor: color }} />
             <div>
-              <p className="text-slate-400 text-sm">Base Color</p>
-              <p className="text-white font-mono text-lg">{color.toUpperCase()}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Base Color</p>
+              <p className="text-gray-900 dark:text-white font-mono text-lg">{color.toUpperCase()}</p>
             </div>
           </div>
 
@@ -542,22 +537,16 @@ export function ColorPicker() {
             <div key={harmony.name} className="space-y-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">{harmony.name}</h3>
-                  <p className="text-slate-400 text-sm">{harmony.description}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{harmony.name}</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">{harmony.description}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => copyAsCss(harmony.colors)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
-                  >
-                    <Copy className="w-3.5 h-3.5" /> CSS
-                  </button>
-                  <button
-                    onClick={() => copyAsTailwind(harmony.colors)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
-                  >
-                    <Copy className="w-3.5 h-3.5" /> Tailwind
-                  </button>
+                  <Button size="sm" variant="secondary" onClick={() => copyAsCss(harmony.colors)} leftIcon={<Copy className="w-3.5 h-3.5" />}>
+                    CSS
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => copyAsTailwind(harmony.colors)} leftIcon={<Copy className="w-3.5 h-3.5" />}>
+                    Tailwind
+                  </Button>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -571,7 +560,7 @@ export function ColorPicker() {
                     className="group relative"
                   >
                     <div
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border-2 border-slate-600 hover:border-blue-500 transition-all shadow-lg hover:scale-105"
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 transition-all shadow-sm hover:scale-105"
                       style={{ backgroundColor: c }}
                     />
                     <span className="absolute bottom-0 left-0 right-0 text-xs text-center bg-black/70 text-white py-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
@@ -590,28 +579,28 @@ export function ColorPicker() {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
                 type="text"
                 value={libraryQuery}
                 onChange={(e) => setLibraryQuery(e.target.value)}
                 placeholder="Search palettes by name..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pl-10"
               />
             </div>
-            <select
+            <Select
               value={libraryCategory}
               onChange={(e) => setLibraryCategory(e.target.value)}
-              className="px-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="sm:w-56"
             >
               <option value={RECENT_LIBRARY_CATEGORY}>All categories</option>
               {PALETTE_CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
-            </select>
+            </Select>
           </div>
 
-          <p className="text-slate-400 text-sm flex items-center gap-1.5">
+          <p className="text-gray-500 dark:text-gray-400 text-sm flex items-center gap-1.5">
             <PaletteIcon className="w-4 h-4" />
             {COLOR_PALETTES.length} built-in palettes &mdash; click any swatch to copy its hex code
             {filteredPalettes.length >= 60 && ' (showing first 60 matches, refine your search for more)'}
@@ -619,12 +608,12 @@ export function ColorPicker() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filteredPalettes.map((palette) => (
-              <div key={palette.id} className="bg-slate-700/50 rounded-lg border border-slate-600 p-3">
+              <div key={palette.id} className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-white truncate">{palette.name}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white truncate">{palette.name}</span>
                   <button
                     onClick={() => copyAsCss(palette.colors)}
-                    className="text-slate-400 hover:text-white flex-shrink-0"
+                    className="text-gray-400 hover:text-gray-700 dark:hover:text-white flex-shrink-0"
                     aria-label={`Copy ${palette.name} as CSS variables`}
                     title="Copy as CSS variables"
                   >
@@ -651,7 +640,7 @@ export function ColorPicker() {
           </div>
 
           {filteredPalettes.length === 0 && (
-            <p className="text-center text-slate-400 py-8">No palettes match "{libraryQuery}"</p>
+            <p className="text-center text-gray-500 dark:text-gray-400 py-8">No palettes match "{libraryQuery}"</p>
           )}
         </div>
       )}
@@ -661,7 +650,7 @@ export function ColorPicker() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Text Color (Foreground)</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Text Color (Foreground)</h3>
               <div className="flex justify-center">
                 <HexAlphaColorPicker
                   color={hex8}
@@ -674,13 +663,13 @@ export function ColorPicker() {
                   color={color}
                   onChange={setColor}
                   prefixed
-                  className="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center w-28"
+                  className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 font-mono text-center w-28 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Background Color</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Background Color</h3>
               <div className="flex justify-center">
                 <HexAlphaColorPicker
                   color={`${contrastBgColor}ff`}
@@ -693,23 +682,23 @@ export function ColorPicker() {
                   color={contrastBgColor}
                   onChange={setContrastBgColor}
                   prefixed
-                  className="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-center w-28"
+                  className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 font-mono text-center w-28 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
             </div>
           </div>
 
-          <div className="p-8 rounded-xl border border-slate-600" style={{ backgroundColor: contrastBgColor }}>
+          <div className="p-8 rounded-lg border border-gray-300 dark:border-gray-600" style={{ backgroundColor: contrastBgColor }}>
             <p style={{ color }} className="text-2xl font-bold mb-2">Sample Heading Text</p>
             <p style={{ color }} className="text-base">
               This is sample body text to preview the contrast between the foreground and background colors. Make sure text is readable for all users.
             </p>
           </div>
 
-          <div className="bg-slate-700/50 rounded-xl p-6 border border-slate-600">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <div className="text-center mb-6">
-              <p className="text-slate-400 text-sm mb-1">Contrast Ratio</p>
-              <p className="text-4xl font-bold text-white">{contrastRatio.toFixed(2)}:1</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Contrast Ratio</p>
+              <p className="text-4xl font-bold text-gray-900 dark:text-white">{contrastRatio.toFixed(2)}:1</p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -721,13 +710,13 @@ export function ColorPicker() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className={clsx('p-4 rounded-lg text-center border', item.pass ? 'bg-green-900/30 border-green-700' : 'bg-red-900/30 border-red-700')}
+                  className={clsx('p-4 rounded-lg text-center border', item.pass ? 'bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-700' : 'bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-700')}
                 >
-                  <p className={clsx('text-sm font-medium', item.pass ? 'text-green-400' : 'text-red-400')}>
+                  <p className={clsx('text-sm font-medium', item.pass ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400')}>
                     {item.pass ? 'PASS' : 'FAIL'}
                   </p>
-                  <p className="text-white font-semibold">{item.label}</p>
-                  <p className="text-slate-400 text-xs">{item.ratio}</p>
+                  <p className="text-gray-900 dark:text-white font-semibold">{item.label}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">{item.ratio}</p>
                 </div>
               ))}
             </div>
@@ -747,14 +736,10 @@ export function ColorPicker() {
               className="hidden"
               id="image-upload"
             />
-            <label
-              htmlFor="image-upload"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer transition-colors"
-            >
-              <Upload className="w-5 h-5" />
+            <Button onClick={() => fileInputRef.current?.click()} leftIcon={<Upload className="w-5 h-5" />}>
               Upload Image
-            </label>
-            <p className="text-slate-400 text-sm mt-2">Upload an image to extract its dominant colors</p>
+            </Button>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Upload an image to extract its dominant colors</p>
           </div>
 
           <canvas ref={canvasRef} className="hidden" />
@@ -762,27 +747,21 @@ export function ColorPicker() {
           {isExtracting && (
             <div className="text-center py-8">
               <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-slate-300 mt-2">Extracting colors...</p>
+              <p className="text-gray-700 dark:text-gray-300 mt-2">Extracting colors...</p>
             </div>
           )}
 
           {extractedColors.length > 0 && !isExtracting && (
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <h3 className="text-lg font-semibold text-white">Extracted Colors</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Extracted Colors</h3>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => copyAsCss(extractedColors)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
-                  >
-                    <Copy className="w-3.5 h-3.5" /> CSS
-                  </button>
-                  <button
-                    onClick={() => copyAsTailwind(extractedColors)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-600 text-slate-200 hover:bg-slate-500 transition-all"
-                  >
-                    <Copy className="w-3.5 h-3.5" /> Tailwind
-                  </button>
+                  <Button size="sm" variant="secondary" onClick={() => copyAsCss(extractedColors)} leftIcon={<Copy className="w-3.5 h-3.5" />}>
+                    CSS
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => copyAsTailwind(extractedColors)} leftIcon={<Copy className="w-3.5 h-3.5" />}>
+                    Tailwind
+                  </Button>
                 </div>
               </div>
 
@@ -797,7 +776,7 @@ export function ColorPicker() {
                     className="group relative"
                   >
                     <div
-                      className="aspect-square rounded-lg border-2 border-slate-600 hover:border-blue-500 transition-all shadow-lg hover:scale-105"
+                      className="aspect-square rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 transition-all shadow-sm hover:scale-105"
                       style={{ backgroundColor: c }}
                     />
                     <span className="absolute bottom-0 left-0 right-0 text-xs text-center bg-black/70 text-white py-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
@@ -807,7 +786,7 @@ export function ColorPicker() {
                 ))}
               </div>
 
-              <p className="text-slate-400 text-sm text-center">Click on any color to select it and copy to clipboard</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm text-center">Click on any color to select it and copy to clipboard</p>
             </div>
           )}
         </div>

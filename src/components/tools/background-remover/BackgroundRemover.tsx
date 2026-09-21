@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { removeBackground, type Config } from '@imgly/background-removal';
-import clsx from 'clsx';
 import { ChevronsLeftRight, AlertCircle, ArrowRight, Wand2, Download, RotateCcw } from 'lucide-react';
 import { FileUploader } from '../../common/FileUploader';
+import { Button } from '../../common/Button';
 import { useToast } from '../../common/Toast';
 
 interface ProcessingState {
@@ -210,28 +210,20 @@ export function BackgroundRemover() {
           {/* View Mode Toggle */}
           {processedImage && (
             <div className="flex justify-center gap-2">
-              <button
+              <Button
+                variant={viewMode === 'side-by-side' ? 'primary' : 'secondary'}
+                size="sm"
                 onClick={() => setViewMode('side-by-side')}
-                className={clsx(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  viewMode === 'side-by-side'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                )}
               >
                 Side by Side
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={viewMode === 'slider' ? 'primary' : 'secondary'}
+                size="sm"
                 onClick={() => setViewMode('slider')}
-                className={clsx(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  viewMode === 'slider'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                )}
               >
                 Slider Compare
-              </button>
+              </Button>
             </div>
           )}
 
@@ -241,21 +233,21 @@ export function BackgroundRemover() {
               {/* Original Image */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-slate-300">Original</h3>
-                  <span className="text-xs text-slate-400">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Original</h3>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {formatFileSize(originalImage.size)}
                   </span>
                 </div>
-                <div className="relative bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                   {/* Checkered background pattern */}
                   <div
                     className="absolute inset-0"
                     style={{
                       backgroundImage: `
-                        linear-gradient(45deg, #374151 25%, transparent 25%),
-                        linear-gradient(-45deg, #374151 25%, transparent 25%),
-                        linear-gradient(45deg, transparent 75%, #374151 75%),
-                        linear-gradient(-45deg, transparent 75%, #374151 75%)
+                        linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+                        linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+                        linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)
                       `,
                       backgroundSize: '20px 20px',
                       backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
@@ -272,25 +264,25 @@ export function BackgroundRemover() {
               {/* Processed Image */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-slate-300">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {processedImage ? 'Background Removed' : 'Result'}
                   </h3>
                   {processedImage && (
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {formatFileSize(processedImage.size)}
                     </span>
                   )}
                 </div>
-                <div className="relative bg-slate-900 rounded-lg overflow-hidden border border-slate-700 min-h-[200px]">
+                <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 min-h-[200px]">
                   {/* Checkered background pattern */}
                   <div
                     className="absolute inset-0"
                     style={{
                       backgroundImage: `
-                        linear-gradient(45deg, #374151 25%, transparent 25%),
-                        linear-gradient(-45deg, #374151 25%, transparent 25%),
-                        linear-gradient(45deg, transparent 75%, #374151 75%),
-                        linear-gradient(-45deg, transparent 75%, #374151 75%)
+                        linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+                        linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+                        linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)
                       `,
                       backgroundSize: '20px 20px',
                       backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
@@ -303,19 +295,19 @@ export function BackgroundRemover() {
                       className="relative w-full h-auto max-h-[400px] object-contain"
                     />
                   ) : (
-                    <div className="relative flex items-center justify-center min-h-[200px] text-slate-500">
+                    <div className="relative flex items-center justify-center min-h-[200px] text-gray-400">
                       {isProcessing ? (
                         <div className="text-center p-4">
                           <div className="w-12 h-12 mx-auto mb-3 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                          <p className="text-slate-300">{processing.message}</p>
+                          <p className="text-gray-700 dark:text-gray-300">{processing.message}</p>
                           <div className="mt-3 w-full max-w-xs mx-auto">
-                            <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-blue-600 transition-all duration-300 ease-out"
                                 style={{ width: `${processing.progress}%` }}
                               />
                             </div>
-                            <p className="mt-1 text-xs text-slate-400">
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               {processing.progress}%
                             </p>
                           </div>
@@ -332,13 +324,13 @@ export function BackgroundRemover() {
             /* Slider View */
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-slate-300">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Drag slider to compare
                 </h3>
               </div>
               <div
                 ref={sliderRef}
-                className="relative bg-slate-900 rounded-lg overflow-hidden border border-slate-700 cursor-ew-resize select-none"
+                className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 cursor-ew-resize select-none"
                 onMouseDown={handleSliderMouseDown}
                 onTouchStart={(e) => {
                   isDragging.current = true;
@@ -352,10 +344,10 @@ export function BackgroundRemover() {
                   className="absolute inset-0"
                   style={{
                     backgroundImage: `
-                      linear-gradient(45deg, #374151 25%, transparent 25%),
-                      linear-gradient(-45deg, #374151 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, #374151 75%),
-                      linear-gradient(-45deg, transparent 75%, #374151 75%)
+                      linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+                      linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+                      linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)
                     `,
                     backgroundSize: '20px 20px',
                     backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
@@ -392,7 +384,7 @@ export function BackgroundRemover() {
                     style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
                   >
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
-                      <ChevronsLeftRight className="w-6 h-6 text-slate-700" />
+                      <ChevronsLeftRight className="w-6 h-6 text-gray-700" />
                     </div>
                   </div>
                 )}
@@ -416,7 +408,7 @@ export function BackgroundRemover() {
           {processing.status === 'error' && (
             <div
               role="alert"
-              className="flex items-center gap-3 p-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-400"
+              className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 dark:bg-red-900/30 dark:border-red-700/50 dark:text-red-400"
             >
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <span>{processing.message}</span>
@@ -425,17 +417,17 @@ export function BackgroundRemover() {
 
           {/* File Size Comparison */}
           {processedImage && (
-            <div className="flex flex-wrap items-center justify-center gap-4 p-4 bg-slate-700/30 rounded-lg">
+            <div className="flex flex-wrap items-center justify-center gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
               <div className="text-center">
-                <p className="text-xs text-slate-400 uppercase tracking-wide">Original</p>
-                <p className="text-lg font-semibold text-white">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Original</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {formatFileSize(originalImage.size)}
                 </p>
               </div>
-              <ArrowRight className="w-6 h-6 text-slate-500" />
+              <ArrowRight className="w-6 h-6 text-gray-400" />
               <div className="text-center">
-                <p className="text-xs text-slate-400 uppercase tracking-wide">Processed</p>
-                <p className="text-lg font-semibold text-green-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Processed</p>
+                <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                   {formatFileSize(processedImage.size)}
                 </p>
               </div>
@@ -445,38 +437,34 @@ export function BackgroundRemover() {
           {/* Action Buttons */}
           <div className="flex flex-wrap justify-center gap-4">
             {!processedImage && !isProcessing && (
-              <button
+              <Button
+                size="lg"
                 onClick={processImage}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+                leftIcon={<Wand2 className="w-5 h-5" />}
               >
-                <Wand2 className="w-5 h-5" />
                 Remove Background
-              </button>
+              </Button>
             )}
 
             {processedImage && (
-              <button
+              <Button
+                size="lg"
                 onClick={handleDownload}
-                className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+                leftIcon={<Download className="w-5 h-5" />}
               >
-                <Download className="w-5 h-5" />
                 Download PNG
-              </button>
+              </Button>
             )}
 
-            <button
+            <Button
+              size="lg"
+              variant="secondary"
               onClick={handleReset}
               disabled={isProcessing}
-              className={clsx(
-                'px-6 py-3 font-medium rounded-lg transition-colors flex items-center gap-2',
-                isProcessing
-                  ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                  : 'bg-slate-700 hover:bg-slate-600 text-white'
-              )}
+              leftIcon={<RotateCcw className="w-5 h-5" />}
             >
-              <RotateCcw className="w-5 h-5" />
               Start Over
-            </button>
+            </Button>
           </div>
         </>
       )}

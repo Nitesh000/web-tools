@@ -1,5 +1,8 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
+import { Button } from '../../common/Button';
+import { Select } from '../../common/Select';
+import { Slider } from '../../common/Slider';
 import { useToast } from '../../common/Toast';
 
 // Character sets for password generation
@@ -76,11 +79,11 @@ function getPasswordStrength(entropy: number): PasswordStrength {
 
 // Strength labels and colors
 const strengthConfig: Record<PasswordStrength, { label: string; color: string; bgColor: string; width: string }> = {
-  'very-weak': { label: 'Very Weak', color: 'text-red-400', bgColor: 'bg-red-500', width: 'w-1/5' },
-  'weak': { label: 'Weak', color: 'text-orange-400', bgColor: 'bg-orange-500', width: 'w-2/5' },
-  'fair': { label: 'Fair', color: 'text-yellow-400', bgColor: 'bg-yellow-500', width: 'w-3/5' },
-  'strong': { label: 'Strong', color: 'text-lime-400', bgColor: 'bg-lime-500', width: 'w-4/5' },
-  'very-strong': { label: 'Very Strong', color: 'text-green-400', bgColor: 'bg-green-500', width: 'w-full' },
+  'very-weak': { label: 'Very Weak', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-500', width: 'w-1/5' },
+  'weak': { label: 'Weak', color: 'text-orange-600 dark:text-orange-400', bgColor: 'bg-orange-500', width: 'w-2/5' },
+  'fair': { label: 'Fair', color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-500', width: 'w-3/5' },
+  'strong': { label: 'Strong', color: 'text-lime-600 dark:text-lime-400', bgColor: 'bg-lime-500', width: 'w-4/5' },
+  'very-strong': { label: 'Very Strong', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-500', width: 'w-full' },
 };
 
 export function PasswordGenerator() {
@@ -223,14 +226,14 @@ export function PasswordGenerator() {
     <div className="space-y-6">
       {/* Mode Toggle */}
       <div className="flex justify-center">
-        <div className="inline-flex rounded-lg bg-slate-700/50 p-1">
+        <div className="inline-flex rounded-lg bg-gray-100 dark:bg-gray-700/50 p-1">
           <button
             onClick={() => updateOption('isPassphrase', false)}
             className={clsx(
               'px-4 py-2 rounded-md text-sm font-medium transition-all',
               !options.isPassphrase
                 ? 'bg-blue-600 text-white'
-                : 'text-slate-300 hover:text-white'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
             )}
           >
             Password
@@ -241,7 +244,7 @@ export function PasswordGenerator() {
               'px-4 py-2 rounded-md text-sm font-medium transition-all',
               options.isPassphrase
                 ? 'bg-blue-600 text-white'
-                : 'text-slate-300 hover:text-white'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
             )}
           >
             Passphrase
@@ -250,16 +253,16 @@ export function PasswordGenerator() {
       </div>
 
       {/* Options Panel */}
-      <div className="bg-slate-700/30 rounded-xl p-6 space-y-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-6 dark:border-gray-700 dark:bg-gray-800">
         {!options.isPassphrase ? (
           <>
             {/* Password Length Slider */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label htmlFor="password-length" className="text-slate-300 font-medium">
+                <label htmlFor="password-length" className="text-gray-700 dark:text-gray-300 font-medium">
                   Password Length
                 </label>
-                <span className="text-blue-400 font-mono text-lg">{options.length}</span>
+                <span className="text-blue-600 dark:text-blue-400 font-mono text-lg">{options.length}</span>
               </div>
               <input
                 id="password-length"
@@ -268,9 +271,9 @@ export function PasswordGenerator() {
                 max="128"
                 value={options.length}
                 onChange={(e) => updateOption('length', parseInt(e.target.value))}
-                className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600 dark:bg-gray-700"
               />
-              <div className="flex justify-between text-xs text-slate-500 mt-1">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                 <span>8</span>
                 <span>128</span>
               </div>
@@ -323,45 +326,29 @@ export function PasswordGenerator() {
         ) : (
           <>
             {/* Passphrase Options */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label htmlFor="word-count" className="text-slate-300 font-medium">
-                  Number of Words
-                </label>
-                <span className="text-blue-400 font-mono text-lg">{options.wordCount}</span>
-              </div>
-              <input
-                id="word-count"
-                type="range"
-                min="3"
-                max="10"
-                value={options.wordCount}
-                onChange={(e) => updateOption('wordCount', parseInt(e.target.value))}
-                className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
-              />
-              <div className="flex justify-between text-xs text-slate-500 mt-1">
-                <span>3</span>
-                <span>10</span>
-              </div>
-            </div>
+            <Slider
+              id="word-count"
+              label={`Number of Words: ${options.wordCount}`}
+              minLabel="3"
+              maxLabel="10"
+              min="3"
+              max="10"
+              value={options.wordCount}
+              onChange={(e) => updateOption('wordCount', parseInt(e.target.value))}
+            />
 
-            <div>
-              <label htmlFor="word-separator" className="block text-slate-300 font-medium mb-2">
-                Word Separator
-              </label>
-              <select
-                id="word-separator"
-                value={options.wordSeparator}
-                onChange={(e) => updateOption('wordSeparator', e.target.value)}
-                className="w-full bg-slate-600 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
-                <option value="-">Hyphen (-)</option>
-                <option value="_">Underscore (_)</option>
-                <option value=".">Period (.)</option>
-                <option value=" ">Space ( )</option>
-                <option value="">None</option>
-              </select>
-            </div>
+            <Select
+              id="word-separator"
+              label="Word Separator"
+              value={options.wordSeparator}
+              onChange={(e) => updateOption('wordSeparator', e.target.value)}
+            >
+              <option value="-">Hyphen (-)</option>
+              <option value="_">Underscore (_)</option>
+              <option value=".">Period (.)</option>
+              <option value=" ">Space ( )</option>
+              <option value="">None</option>
+            </Select>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <ToggleOption
@@ -381,32 +368,21 @@ export function PasswordGenerator() {
         )}
 
         {/* Password Count */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label htmlFor="password-count" className="text-slate-300 font-medium">
-              Generate Multiple
-            </label>
-            <span className="text-blue-400 font-mono text-lg">{options.count}</span>
-          </div>
-          <input
-            id="password-count"
-            type="range"
-            min="1"
-            max="10"
-            value={options.count}
-            onChange={(e) => updateOption('count', parseInt(e.target.value))}
-            className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
-          />
-          <div className="flex justify-between text-xs text-slate-500 mt-1">
-            <span>1</span>
-            <span>10</span>
-          </div>
-        </div>
+        <Slider
+          id="password-count"
+          label={`Generate Multiple: ${options.count}`}
+          minLabel="1"
+          maxLabel="10"
+          min="1"
+          max="10"
+          value={options.count}
+          onChange={(e) => updateOption('count', parseInt(e.target.value))}
+        />
       </div>
 
       {/* Validation Message */}
       {!hasValidOptions && (
-        <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-4 text-red-400 text-sm">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600 text-sm dark:bg-red-900/30 dark:border-red-700/50 dark:text-red-400">
           Please select at least one character type to generate a password.
         </div>
       )}
@@ -417,20 +393,17 @@ export function PasswordGenerator() {
           {passwords.map((password) => (
             <div
               key={password.id}
-              className="bg-slate-700/30 rounded-xl p-4 space-y-3"
+              className="rounded-lg border border-gray-200 bg-white p-4 space-y-3 dark:border-gray-700 dark:bg-gray-800"
             >
               <div className="flex items-center gap-3">
-                <code className="flex-1 text-white font-mono text-sm md:text-base break-all bg-slate-800/50 rounded-lg px-4 py-3">
+                <code className="flex-1 text-gray-900 dark:text-white font-mono text-sm md:text-base break-all bg-gray-50 dark:bg-gray-900/50 rounded-lg px-4 py-3">
                   {password.value}
                 </code>
-                <button
+                <Button
+                  size="sm"
+                  variant={copiedId === password.id ? 'primary' : 'secondary'}
                   onClick={() => copyPassword(password)}
-                  className={clsx(
-                    'flex-shrink-0 p-3 rounded-lg transition-all',
-                    copiedId === password.id
-                      ? 'bg-green-600 text-white'
-                      : 'bg-slate-600 text-slate-300 hover:bg-slate-500 hover:text-white'
-                  )}
+                  className={clsx('flex-shrink-0 !p-3', copiedId === password.id && 'bg-green-600 hover:bg-green-600 focus:ring-green-500 dark:bg-green-600 dark:hover:bg-green-600')}
                   aria-label={copiedId === password.id ? 'Copied!' : 'Copy password'}
                 >
                   {copiedId === password.id ? (
@@ -438,13 +411,13 @@ export function PasswordGenerator() {
                   ) : (
                     <CopyIcon className="w-5 h-5" />
                   )}
-                </button>
+                </Button>
               </div>
 
               {/* Strength Indicator */}
               <div className="flex items-center gap-4">
                 <div className="flex-1">
-                  <div className="h-2 bg-slate-600 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className={clsx(
                         'h-full transition-all duration-300 rounded-full',
@@ -458,8 +431,8 @@ export function PasswordGenerator() {
                   <span className={strengthConfig[password.strength].color}>
                     {strengthConfig[password.strength].label}
                   </span>
-                  <span className="text-slate-500">|</span>
-                  <span className="text-slate-400">
+                  <span className="text-gray-300 dark:text-gray-500">|</span>
+                  <span className="text-gray-500 dark:text-gray-400">
                     {password.entropy} bits entropy
                   </span>
                 </div>
@@ -471,42 +444,27 @@ export function PasswordGenerator() {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <button
+        <Button
+          size="lg"
+          fullWidth
           onClick={generatePasswords}
           disabled={!hasValidOptions}
-          className={clsx(
-            'flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-medium transition-all',
-            hasValidOptions
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-slate-600 text-slate-400 cursor-not-allowed'
-          )}
+          leftIcon={<RefreshIcon className="w-5 h-5" />}
+          className="flex-1"
         >
-          <RefreshIcon className="w-5 h-5" />
           Generate {options.isPassphrase ? 'Passphrase' : 'Password'}{options.count > 1 ? 's' : ''}
-        </button>
+        </Button>
 
         {passwords.length > 1 && (
-          <button
+          <Button
+            size="lg"
+            variant={copiedAll ? 'primary' : 'secondary'}
             onClick={copyAllPasswords}
-            className={clsx(
-              'flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-medium transition-all',
-              copiedAll
-                ? 'bg-green-600 text-white'
-                : 'bg-slate-600 text-slate-300 hover:bg-slate-500 hover:text-white'
-            )}
+            className={copiedAll ? 'bg-green-600 hover:bg-green-600 focus:ring-green-500 dark:bg-green-600 dark:hover:bg-green-600' : undefined}
+            leftIcon={copiedAll ? <CheckIcon className="w-5 h-5" /> : <CopyIcon className="w-5 h-5" />}
           >
-            {copiedAll ? (
-              <>
-                <CheckIcon className="w-5 h-5" />
-                Copied All!
-              </>
-            ) : (
-              <>
-                <CopyIcon className="w-5 h-5" />
-                Copy All
-              </>
-            )}
-          </button>
+            {copiedAll ? 'Copied All!' : 'Copy All'}
+          </Button>
         )}
       </div>
     </div>
@@ -526,10 +484,10 @@ function ToggleOption({ id, label, checked, onChange }: ToggleOptionProps) {
     <label
       htmlFor={id}
       className={clsx(
-        'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all',
+        'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border',
         checked
-          ? 'bg-blue-900/30 border border-blue-700/50'
-          : 'bg-slate-700/50 border border-slate-600/50 hover:bg-slate-700'
+          ? 'bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700/50'
+          : 'bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-700/50 dark:border-gray-600/50 dark:hover:bg-gray-700'
       )}
     >
       <input
@@ -542,12 +500,12 @@ function ToggleOption({ id, label, checked, onChange }: ToggleOptionProps) {
       <div
         className={clsx(
           'w-5 h-5 rounded flex items-center justify-center transition-all',
-          checked ? 'bg-blue-600' : 'bg-slate-600'
+          checked ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
         )}
       >
         {checked && <CheckIcon className="w-3 h-3 text-white" />}
       </div>
-      <span className={clsx('text-sm', checked ? 'text-white' : 'text-slate-400')}>
+      <span className={clsx('text-sm', checked ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400')}>
         {label}
       </span>
     </label>

@@ -5,6 +5,7 @@ import {
   type DragEvent,
   type ChangeEvent,
 } from "react";
+import clsx from "clsx";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { UploadCloud, Download, Trash2 } from "lucide-react";
@@ -14,6 +15,9 @@ import {
   type ImageFile,
 } from "../../../hooks/useImageCompression";
 import { Button } from "../../common/Button";
+import { Select } from "../../common/Select";
+import { Input } from "../../common/Input";
+import { Slider } from "../../common/Slider";
 import { useToast } from "../../common/Toast";
 
 const formatFileSize = (bytes: number): string => {
@@ -41,25 +45,25 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
       : null;
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-slate-700/50 border-slate-600/50">
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
       {/* Preview Images */}
       <div className="grid grid-cols-2 gap-2 p-3">
         <div className="space-y-2">
-          <p className="text-xs text-center text-slate-400">Original</p>
-          <div className="flex overflow-hidden justify-center items-center rounded-lg aspect-square bg-slate-800">
+          <p className="text-xs text-center text-gray-500 dark:text-gray-400">Original</p>
+          <div className="flex overflow-hidden justify-center items-center rounded-lg aspect-square bg-gray-100 dark:bg-gray-900">
             <img
               src={image.originalPreview}
               alt="Original"
               className="object-contain max-w-full max-h-full"
             />
           </div>
-          <p className="text-xs text-center text-slate-300">
+          <p className="text-xs text-center text-gray-600 dark:text-gray-300">
             {formatFileSize(image.originalSize)}
           </p>
         </div>
         <div className="space-y-2">
-          <p className="text-xs text-center text-slate-400">Compressed</p>
-          <div className="flex overflow-hidden justify-center items-center rounded-lg aspect-square bg-slate-800">
+          <p className="text-xs text-center text-gray-500 dark:text-gray-400">Compressed</p>
+          <div className="flex overflow-hidden justify-center items-center rounded-lg aspect-square bg-gray-100 dark:bg-gray-900">
             {image.compressedPreview ? (
               <img
                 src={image.compressedPreview}
@@ -67,12 +71,12 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
                 className="object-contain max-w-full max-h-full"
               />
             ) : (
-              <div className="px-2 text-xs text-center text-slate-500">
+              <div className="px-2 text-xs text-center text-gray-400">
                 {image.status === "compressing" ? "Compressing..." : "Pending"}
               </div>
             )}
           </div>
-          <p className="text-xs text-center text-slate-300">
+          <p className="text-xs text-center text-gray-600 dark:text-gray-300">
             {image.compressedSize !== null
               ? formatFileSize(image.compressedSize)
               : "-"}
@@ -83,7 +87,7 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
       {/* Progress Bar */}
       {image.status === "compressing" && (
         <div className="px-3 pb-2">
-          <div className="overflow-hidden h-2 rounded-full bg-slate-800">
+          <div className="overflow-hidden h-2 rounded-full bg-gray-200 dark:bg-gray-700">
             <div
               className="h-full bg-blue-500 transition-all duration-300"
               style={{ width: `${image.progress}%` }}
@@ -93,15 +97,15 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
               aria-valuemax={100}
             />
           </div>
-          <p className="mt-1 text-xs text-center text-slate-400">
+          <p className="mt-1 text-xs text-center text-gray-500 dark:text-gray-400">
             {image.progress}%
           </p>
         </div>
       )}
 
       {/* File Info & Actions */}
-      <div className="p-3 border-t border-slate-600/50">
-        <p className="mb-2 text-sm text-white truncate" title={image.file.name}>
+      <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+        <p className="mb-2 text-sm text-gray-900 dark:text-white truncate" title={image.file.name}>
           {image.file.name}
         </p>
 
@@ -110,20 +114,20 @@ function ImageCard({ image, onRemove, onDownload }: ImageCardProps) {
           {image.status === "completed" && reduction !== null && (
             <span
               className={`text-sm font-medium ${
-                reduction > 0 ? "text-green-400" : "text-yellow-400"
+                reduction > 0 ? "text-green-600 dark:text-green-400" : "text-yellow-600 dark:text-yellow-400"
               }`}
             >
               {reduction > 0 ? `-${reduction}%` : "No reduction"}
             </span>
           )}
           {image.status === "error" && (
-            <span className="text-sm text-red-400">{image.error}</span>
+            <span className="text-sm text-red-600 dark:text-red-400">{image.error}</span>
           )}
           {image.status === "pending" && (
-            <span className="text-sm text-slate-400">Ready to compress</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Ready to compress</span>
           )}
           {image.status === "compressing" && (
-            <span className="text-sm text-blue-400">Compressing...</span>
+            <span className="text-sm text-blue-600 dark:text-blue-400">Compressing...</span>
           )}
         </div>
 
@@ -287,18 +291,16 @@ export function ImageCompressor() {
   return (
     <div className="space-y-6">
       {/* Compression Options */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Quality Slider */}
-        <div className="space-y-2">
-          <label
-            htmlFor="quality-slider"
-            className="block text-sm font-medium text-slate-700"
-          >
-            Quality: {options.quality}%
-          </label>
-          <input
+      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+          Compression Settings
+        </h3>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Slider
             id="quality-slider"
-            type="range"
+            label={`Quality: ${options.quality}%`}
+            minLabel="Low"
+            maxLabel="High"
             min="1"
             max="100"
             value={options.quality}
@@ -308,27 +310,14 @@ export function ImageCompressor() {
                 quality: Number(e.target.value),
               }))
             }
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-200 accent-blue-500"
             aria-valuemin={1}
             aria-valuemax={100}
             aria-valuenow={options.quality}
           />
-          <div className="flex justify-between text-xs text-slate-500">
-            <span>Low</span>
-            <span>High</span>
-          </div>
-        </div>
 
-        {/* Max Width */}
-        <div className="space-y-2">
-          <label
-            htmlFor="max-width"
-            className="block text-sm font-medium text-slate-700"
-          >
-            Max Width (px)
-          </label>
-          <input
+          <Input
             id="max-width"
+            label="Max Width (px)"
             type="number"
             min="100"
             max="10000"
@@ -345,20 +334,11 @@ export function ImageCompressor() {
                 ),
               }))
             }
-            className="py-2 px-3 w-full rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 text-slate-800 bg-slate-300 border-slate-600"
           />
-        </div>
 
-        {/* Max Height */}
-        <div className="space-y-2">
-          <label
-            htmlFor="max-height"
-            className="block text-sm font-medium text-slate-700"
-          >
-            Max Height (px)
-          </label>
-          <input
+          <Input
             id="max-height"
+            label="Max Height (px)"
             type="number"
             min="100"
             max="10000"
@@ -375,20 +355,11 @@ export function ImageCompressor() {
                 ),
               }))
             }
-            className="py-2 px-3 w-full rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 text-slate-800 bg-slate-300 border-slate-600"
           />
-        </div>
 
-        {/* Output Format */}
-        <div className="space-y-2">
-          <label
-            htmlFor="output-format"
-            className="block text-sm font-medium text-slate-700"
-          >
-            Output Format
-          </label>
-          <select
+          <Select
             id="output-format"
+            label="Output Format"
             value={options.outputFormat}
             onChange={(e) =>
               setOptions((prev) => ({
@@ -397,13 +368,12 @@ export function ImageCompressor() {
                   .value as CompressionOptions["outputFormat"],
               }))
             }
-            className="py-2 px-3 w-full rounded-lg border focus:border-transparent focus:ring-2 focus:ring-blue-500 text-slate-800 bg-slate-300 border-slate-600"
           >
             <option value="original">Keep Original</option>
             <option value="jpeg">JPEG</option>
             <option value="png">PNG</option>
             <option value="webp">WebP</option>
-          </select>
+          </Select>
         </div>
       </div>
 
@@ -423,15 +393,12 @@ export function ImageCompressor() {
         role="button"
         tabIndex={0}
         aria-label="Upload images by clicking or dragging and dropping"
-        className={`
-          relative p-8 border-2 border-dashed rounded-xl text-center cursor-pointer
-          transition-all duration-200
-          ${
-            isDragging
-              ? "border-blue-500 bg-blue-500/10"
-              : "border-slate-200 hover:border-slate-300 hover:bg-slate-200"
-          }
-        `}
+        className={clsx(
+          'relative rounded-lg border-2 border-dashed p-8 text-center transition-colors',
+          isDragging
+            ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
+            : 'border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500'
+        )}
       >
         <input
           ref={fileInputRef}
@@ -443,16 +410,16 @@ export function ImageCompressor() {
           aria-hidden="true"
         />
         <UploadCloud
-          className="mx-auto mb-4 w-12 h-12 text-slate-400"
+          className="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
           strokeWidth={1.5}
           aria-hidden="true"
         />
-        <p className="mb-2 text-lg text-slate-800">
+        <p className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
           {isDragging
             ? "Drop images here"
             : "Drag & drop images here, or click to select"}
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Supports JPEG, PNG, WebP, GIF, and more
         </p>
       </div>
@@ -498,23 +465,23 @@ export function ImageCompressor() {
 
       {/* Stats Summary */}
       {completedCount > 0 && (
-        <div className="p-4 text-center rounded-lg bg-slate-700/30">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 text-center dark:border-gray-700 dark:bg-gray-800">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <p className="text-sm text-slate-700">Original Total</p>
-              <p className="text-lg font-semibold text-slate-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Original Total</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">
                 {formatFileSize(totalOriginalSize)}
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-700">Compressed Total</p>
-              <p className="text-lg font-semibold text-slate-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Compressed Total</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">
                 {formatFileSize(totalCompressedSize)}
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-700">Total Saved</p>
-              <p className="text-lg font-semibold text-green-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Saved</p>
+              <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                 {totalOriginalSize > 0
                   ? `${calculateReduction(totalOriginalSize, totalCompressedSize)}%`
                   : "0%"}
@@ -540,7 +507,7 @@ export function ImageCompressor() {
 
       {/* Empty State */}
       {images.length === 0 && (
-        <div className="py-8 text-center text-slate-500">
+        <div className="py-8 text-center text-gray-500 dark:text-gray-400">
           <p>No images added yet. Upload some images to get started!</p>
         </div>
       )}

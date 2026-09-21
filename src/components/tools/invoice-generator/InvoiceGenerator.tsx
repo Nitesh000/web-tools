@@ -296,19 +296,21 @@ export function InvoiceGenerator() {
 
   const inputClasses = clsx(
     'w-full px-3 py-2 rounded-lg',
-    'bg-slate-700/50 border border-slate-600/50',
-    'text-white placeholder-slate-400',
-    'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+    'bg-white border border-gray-300 dark:bg-gray-700/50 dark:border-gray-600/50',
+    'text-gray-900 placeholder-gray-400 dark:text-white dark:placeholder-gray-500',
+    'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500',
     'transition-colors'
   );
 
-  const labelClasses = 'block text-sm font-medium text-slate-300 mb-1';
+  const labelClasses = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
   const buttonClasses = clsx(
     'px-4 py-2 rounded-lg font-medium',
     'transition-colors duration-200',
-    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800'
+    'focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
   );
+
+  const secondaryButtonClasses = clsx(buttonClasses, 'bg-gray-100 hover:bg-gray-200 text-gray-900 focus:ring-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white');
 
   // Template-specific styles for the invoice preview
   const getTemplateStyles = () => {
@@ -399,7 +401,7 @@ export function InvoiceGenerator() {
           <button
             type="button"
             onClick={handlePrint}
-            className={clsx(buttonClasses, 'bg-slate-600 hover:bg-slate-500 text-white focus:ring-slate-400 flex items-center gap-2')}
+            className={clsx(secondaryButtonClasses, 'flex items-center gap-2')}
           >
             <Printer className="w-4 h-4" />
             Print
@@ -407,12 +409,12 @@ export function InvoiceGenerator() {
         </div>
         <div className="flex items-center gap-3">
           {draftSaved && (
-            <span className="text-green-400 text-sm">Draft saved</span>
+            <span className="text-green-600 dark:text-green-400 text-sm">Draft saved</span>
           )}
           <button
             type="button"
             onClick={clearDraft}
-            className={clsx(buttonClasses, 'bg-red-600/20 hover:bg-red-600/30 text-red-400 focus:ring-red-500')}
+            className={clsx(buttonClasses, 'bg-red-50 hover:bg-red-100 text-red-600 focus:ring-red-500 dark:bg-red-600/20 dark:hover:bg-red-600/30 dark:text-red-400')}
           >
             Clear Draft
           </button>
@@ -435,8 +437,8 @@ export function InvoiceGenerator() {
                     className={clsx(
                       'text-left rounded-lg border-2 p-3 transition-colors',
                       data.template === option.id
-                        ? 'border-blue-500 bg-blue-500/10'
-                        : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
+                        : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-600 dark:bg-gray-700/50 dark:hover:border-gray-500'
                     )}
                     aria-pressed={data.template === option.id}
                   >
@@ -446,9 +448,9 @@ export function InvoiceGenerator() {
                         style={{ backgroundColor: option.swatch }}
                         aria-hidden="true"
                       />
-                      <span className="text-sm font-semibold text-white">{option.name}</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{option.name}</span>
                     </span>
-                    <span className="mt-1 block text-xs text-slate-400">{option.description}</span>
+                    <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">{option.description}</span>
                   </button>
                 ))}
               </div>
@@ -476,8 +478,8 @@ export function InvoiceGenerator() {
             </div>
 
             {/* Company Information */}
-            <fieldset className="border border-slate-600/50 rounded-lg p-4">
-              <legend className="text-white font-medium px-2">Your Company Information</legend>
+            <fieldset className="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
+              <legend className="text-gray-900 dark:text-white font-medium px-2">Your Company Information</legend>
               <div className="space-y-4">
                 <div>
                   <label htmlFor={`${formId}-company-name`} className={labelClasses}>
@@ -519,7 +521,7 @@ export function InvoiceGenerator() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className={clsx(buttonClasses, 'bg-slate-600 hover:bg-slate-500 text-white focus:ring-slate-400')}
+                      className={secondaryButtonClasses}
                     >
                       Upload Logo
                     </button>
@@ -533,7 +535,7 @@ export function InvoiceGenerator() {
                         <button
                           type="button"
                           onClick={() => updateCompanyInfo('logo', null)}
-                          className="text-red-400 hover:text-red-300"
+                          className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
                           aria-label="Remove logo"
                         >
                           Remove
@@ -546,8 +548,8 @@ export function InvoiceGenerator() {
             </fieldset>
 
             {/* Client Information */}
-            <fieldset className="border border-slate-600/50 rounded-lg p-4">
-              <legend className="text-white font-medium px-2">Client Information</legend>
+            <fieldset className="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
+              <legend className="text-gray-900 dark:text-white font-medium px-2">Client Information</legend>
               <div className="space-y-4">
                 <div>
                   <label htmlFor={`${formId}-client-name`} className={labelClasses}>
@@ -592,8 +594,8 @@ export function InvoiceGenerator() {
             </fieldset>
 
             {/* Invoice Details */}
-            <fieldset className="border border-slate-600/50 rounded-lg p-4">
-              <legend className="text-white font-medium px-2">Invoice Details</legend>
+            <fieldset className="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
+              <legend className="text-gray-900 dark:text-white font-medium px-2">Invoice Details</legend>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -624,7 +626,7 @@ export function InvoiceGenerator() {
                       <button
                         type="button"
                         onClick={regenerateInvoiceNumber}
-                        className={clsx(buttonClasses, 'bg-slate-600 hover:bg-slate-500 text-white focus:ring-slate-400')}
+                        className={secondaryButtonClasses}
                         aria-label="Regenerate invoice number"
                         title="Regenerate invoice number"
                       >
@@ -665,10 +667,10 @@ export function InvoiceGenerator() {
             </fieldset>
 
             {/* Line Items */}
-            <fieldset className="border border-slate-600/50 rounded-lg p-4">
-              <legend className="text-white font-medium px-2">Line Items</legend>
+            <fieldset className="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
+              <legend className="text-gray-900 dark:text-white font-medium px-2">Line Items</legend>
               <div className="space-y-4">
-                <div className="hidden sm:grid sm:grid-cols-12 gap-2 text-sm font-medium text-slate-400">
+                <div className="hidden sm:grid sm:grid-cols-12 gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
                   <div className="col-span-5">Description</div>
                   <div className="col-span-2">Quantity</div>
                   <div className="col-span-2">Unit Price</div>
@@ -719,7 +721,7 @@ export function InvoiceGenerator() {
                         className={inputClasses}
                       />
                     </div>
-                    <div className="sm:col-span-2 flex items-center h-10 text-slate-300">
+                    <div className="sm:col-span-2 flex items-center h-10 text-gray-600 dark:text-gray-300">
                       {formatCurrency(item.quantity * item.unitPrice)}
                     </div>
                     <div className="sm:col-span-1 flex items-center">
@@ -730,7 +732,7 @@ export function InvoiceGenerator() {
                         className={clsx(
                           'p-2 rounded-lg transition-colors',
                           data.lineItems.length <= 1
-                            ? 'text-slate-500 cursor-not-allowed'
+                            ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                             : 'text-red-400 hover:bg-red-600/20'
                         )}
                         aria-label="Remove line item"
@@ -745,7 +747,7 @@ export function InvoiceGenerator() {
                 <button
                   type="button"
                   onClick={addLineItem}
-                  className={clsx(buttonClasses, 'w-full bg-slate-600/50 hover:bg-slate-600 text-white focus:ring-slate-400')}
+                  className={clsx(secondaryButtonClasses, 'w-full')}
                 >
                   + Add Line Item
                 </button>
@@ -753,8 +755,8 @@ export function InvoiceGenerator() {
             </fieldset>
 
             {/* Totals */}
-            <fieldset className="border border-slate-600/50 rounded-lg p-4">
-              <legend className="text-white font-medium px-2">Totals</legend>
+            <fieldset className="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
+              <legend className="text-gray-900 dark:text-white font-medium px-2">Totals</legend>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -787,24 +789,24 @@ export function InvoiceGenerator() {
                     />
                   </div>
                 </div>
-                <div className="bg-slate-700/50 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between text-slate-300">
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2 dark:bg-gray-700/50">
+                  <div className="flex justify-between text-gray-600 dark:text-gray-300">
                     <span>Subtotal:</span>
                     <span>{formatCurrency(calculateSubtotal())}</span>
                   </div>
                   {data.taxRate > 0 && (
-                    <div className="flex justify-between text-slate-300">
+                    <div className="flex justify-between text-gray-600 dark:text-gray-300">
                       <span>Tax ({data.taxRate}%):</span>
                       <span>{formatCurrency(calculateTax())}</span>
                     </div>
                   )}
                   {data.discount > 0 && (
-                    <div className="flex justify-between text-slate-300">
+                    <div className="flex justify-between text-gray-600 dark:text-gray-300">
                       <span>Discount:</span>
                       <span>-{formatCurrency(data.discount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-white font-bold text-lg border-t border-slate-600 pt-2">
+                  <div className="flex justify-between text-gray-900 dark:text-white font-bold text-lg border-t border-gray-200 dark:border-gray-600 pt-2">
                     <span>Total:</span>
                     <span>{formatCurrency(calculateTotal())}</span>
                   </div>
@@ -813,8 +815,8 @@ export function InvoiceGenerator() {
             </fieldset>
 
             {/* Notes & Payment */}
-            <fieldset className="border border-slate-600/50 rounded-lg p-4">
-              <legend className="text-white font-medium px-2">Notes & Payment</legend>
+            <fieldset className="border border-gray-200 rounded-lg p-4 dark:border-gray-700">
+              <legend className="text-gray-900 dark:text-white font-medium px-2">Notes & Payment</legend>
               <div className="space-y-4">
                 <div>
                   <label htmlFor={`${formId}-notes`} className={labelClasses}>
@@ -850,7 +852,7 @@ export function InvoiceGenerator() {
         {/* Preview Section */}
         <div className={clsx(showPreview ? 'block' : 'hidden lg:block')}>
           <div className="sticky top-4">
-            <h3 className="text-lg font-medium text-white mb-4 print:hidden">Invoice Preview</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 print:hidden">Invoice Preview</h3>
             <div
               ref={printRef}
               className={clsx(

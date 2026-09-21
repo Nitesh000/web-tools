@@ -3,6 +3,8 @@ import GIF from 'gif.js';
 import gifWorkerUrl from 'gif.js/dist/gif.worker.js?url';
 import { UploadCloud, AlertCircle, RefreshCw, Download } from 'lucide-react';
 import { Button } from '@/components/common/Button';
+import { Select } from '@/components/common/Select';
+import { Slider } from '@/components/common/Slider';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { useToast } from '@/components/common/Toast';
 
@@ -379,14 +381,14 @@ export function VideoToGif() {
           />
           <label
             htmlFor="video-upload"
-            className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-600 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-slate-700/30 transition-all"
+            className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 transition-all"
           >
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <UploadCloud className="w-12 h-12 text-slate-400 mb-4" strokeWidth={1.5} aria-hidden="true" />
-              <p className="mb-2 text-lg text-slate-300">
-                <span className="font-semibold text-blue-400">Click to upload</span> or drag and drop
+              <UploadCloud className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4" strokeWidth={1.5} aria-hidden="true" />
+              <p className="mb-2 text-lg text-gray-900 dark:text-white">
+                <span className="font-semibold text-blue-600 dark:text-blue-400">Click to upload</span> or drag and drop
               </p>
-              <p id="upload-help" className="text-sm text-slate-400">
+              <p id="upload-help" className="text-sm text-gray-500 dark:text-gray-400">
                 MP4, WebM, or MOV (max 100MB recommended)
               </p>
             </div>
@@ -397,7 +399,7 @@ export function VideoToGif() {
       {/* Error Message */}
       {error && (
         <div
-          className="bg-red-900/30 border border-red-700/50 rounded-lg p-4 text-red-400"
+          className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600 dark:bg-red-900/30 dark:border-red-700/50 dark:text-red-400"
           role="alert"
           aria-live="polite"
         >
@@ -414,8 +416,8 @@ export function VideoToGif() {
           {/* Video Preview */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-white">Video Preview</h3>
-              <div className="relative aspect-video bg-slate-900 rounded-lg overflow-hidden">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Video Preview</h3>
+              <div className="relative aspect-video bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
                 <video
                   ref={videoRef}
                   src={videoUrl}
@@ -427,7 +429,7 @@ export function VideoToGif() {
                 />
               </div>
               {videoFile && (
-                <div className="text-sm text-slate-400">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   <p>File: {videoFile.name}</p>
                   <p>Size: {formatFileSize(videoFile.size)}</p>
                   {videoDuration > 0 && (
@@ -441,8 +443,8 @@ export function VideoToGif() {
 
             {/* First Frame Preview */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-white">Preview (Start Frame)</h3>
-              <div className="relative aspect-video bg-slate-900 rounded-lg overflow-hidden">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Preview (Start Frame)</h3>
+              <div className="relative aspect-video bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
                 {previewFrame ? (
                   <img
                     src={previewFrame}
@@ -450,61 +452,49 @@ export function VideoToGif() {
                     className="w-full h-full object-contain"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-slate-500">
+                  <div className="flex items-center justify-center h-full text-gray-400">
                     Loading preview...
                   </div>
                 )}
               </div>
               {estimatedSize && (
-                <p className="text-sm text-slate-400">
-                  Estimated output size: <span className="text-blue-400">{estimatedSize}</span>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Estimated output size: <span className="text-blue-600 dark:text-blue-400">{estimatedSize}</span>
                 </p>
               )}
             </div>
           </div>
 
           {/* Time Range Selector */}
-          <div className="bg-slate-700/30 rounded-lg p-4 space-y-4">
-            <h3 className="text-lg font-medium text-white">Time Range</h3>
+          <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-4 dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Time Range</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="start-time" className="block text-sm font-medium text-slate-300">
-                  Start Time: {formatTime(settings.startTime)}
-                </label>
-                <input
-                  id="start-time"
-                  type="range"
-                  min={0}
-                  max={videoDuration}
-                  step={0.01}
-                  value={settings.startTime}
-                  onChange={(e) => handleStartTimeChange(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                  aria-valuemin={0}
-                  aria-valuemax={videoDuration}
-                  aria-valuenow={settings.startTime}
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="end-time" className="block text-sm font-medium text-slate-300">
-                  End Time: {formatTime(settings.endTime)}
-                </label>
-                <input
-                  id="end-time"
-                  type="range"
-                  min={0}
-                  max={videoDuration}
-                  step={0.01}
-                  value={settings.endTime}
-                  onChange={(e) => handleEndTimeChange(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                  aria-valuemin={0}
-                  aria-valuemax={videoDuration}
-                  aria-valuenow={settings.endTime}
-                />
-              </div>
+              <Slider
+                id="start-time"
+                label={`Start Time: ${formatTime(settings.startTime)}`}
+                min={0}
+                max={videoDuration}
+                step={0.01}
+                value={settings.startTime}
+                onChange={(e) => handleStartTimeChange(parseFloat(e.target.value))}
+                aria-valuemin={0}
+                aria-valuemax={videoDuration}
+                aria-valuenow={settings.startTime}
+              />
+              <Slider
+                id="end-time"
+                label={`End Time: ${formatTime(settings.endTime)}`}
+                min={0}
+                max={videoDuration}
+                step={0.01}
+                value={settings.endTime}
+                onChange={(e) => handleEndTimeChange(parseFloat(e.target.value))}
+                aria-valuemin={0}
+                aria-valuemax={videoDuration}
+                aria-valuenow={settings.endTime}
+              />
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Selected duration: {formatTime(settings.endTime - settings.startTime)}
             </p>
           </div>
@@ -512,17 +502,14 @@ export function VideoToGif() {
           {/* Settings Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Frame Rate */}
-            <div className="bg-slate-700/30 rounded-lg p-4 space-y-3">
-              <label htmlFor="frame-rate" className="block text-sm font-medium text-slate-300">
-                Frame Rate
-              </label>
-              <select
+            <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3 dark:border-gray-700 dark:bg-gray-800">
+              <Select
                 id="frame-rate"
+                label="Frame Rate"
                 value={settings.frameRate}
                 onChange={(e) =>
                   setSettings((prev) => ({ ...prev, frameRate: parseInt(e.target.value) }))
                 }
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 aria-describedby="frame-rate-desc"
               >
                 {FRAME_RATES.map((fps) => (
@@ -530,25 +517,22 @@ export function VideoToGif() {
                     {fps} FPS
                   </option>
                 ))}
-              </select>
-              <p id="frame-rate-desc" className="text-xs text-slate-500">
+              </Select>
+              <p id="frame-rate-desc" className="text-xs text-gray-500 dark:text-gray-400">
                 Higher = smoother but larger file
               </p>
             </div>
 
             {/* Output Size */}
-            <div className="bg-slate-700/30 rounded-lg p-4 space-y-3">
-              <label htmlFor="output-size" className="block text-sm font-medium text-slate-300">
-                Output Size
-              </label>
-              <select
+            <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3 dark:border-gray-700 dark:bg-gray-800">
+              <Select
                 id="output-size"
+                label="Output Size"
                 value={selectedSize}
                 onChange={(e) => {
                   const value = e.target.value === 'original' ? 'original' : parseInt(e.target.value);
                   setSelectedSize(value);
                 }}
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 aria-describedby="output-size-desc"
               >
                 {OUTPUT_SIZES.map((size) => (
@@ -556,20 +540,17 @@ export function VideoToGif() {
                     {size.label} {size.value !== 'original' && `(${size.value}p)`}
                   </option>
                 ))}
-              </select>
-              <p id="output-size-desc" className="text-xs text-slate-500">
+              </Select>
+              <p id="output-size-desc" className="text-xs text-gray-500 dark:text-gray-400">
                 {settings.width}x{settings.height}px
               </p>
             </div>
 
             {/* Quality */}
-            <div className="bg-slate-700/30 rounded-lg p-4 space-y-3">
-              <label htmlFor="quality" className="block text-sm font-medium text-slate-300">
-                Quality: {settings.quality}%
-              </label>
-              <input
+            <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3 dark:border-gray-700 dark:bg-gray-800">
+              <Slider
                 id="quality"
-                type="range"
+                label={`Quality: ${settings.quality}%`}
                 min={10}
                 max={100}
                 step={5}
@@ -577,13 +558,12 @@ export function VideoToGif() {
                 onChange={(e) =>
                   setSettings((prev) => ({ ...prev, quality: parseInt(e.target.value) }))
                 }
-                className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
                 aria-valuemin={10}
                 aria-valuemax={100}
                 aria-valuenow={settings.quality}
                 aria-describedby="quality-desc"
               />
-              <p id="quality-desc" className="text-xs text-slate-500">
+              <p id="quality-desc" className="text-xs text-gray-500 dark:text-gray-400">
                 Higher = better quality, larger file
               </p>
             </div>
@@ -591,10 +571,10 @@ export function VideoToGif() {
 
           {/* Progress Bar */}
           {isConverting && (
-            <div className="bg-slate-700/30 rounded-lg p-4 space-y-3">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-3 dark:border-gray-700 dark:bg-gray-800">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-300">{progressStatus}</span>
-                <span className="text-blue-400">{progress}%</span>
+                <span className="text-gray-700 dark:text-gray-300">{progressStatus}</span>
+                <span className="text-blue-600 dark:text-blue-400">{progress}%</span>
               </div>
               <ProgressBar
                 value={progress}
@@ -608,8 +588,8 @@ export function VideoToGif() {
 
           {/* GIF Preview */}
           {gifUrl && (
-            <div className="bg-slate-700/30 rounded-lg p-4 space-y-4">
-              <h3 className="text-lg font-medium text-white">Generated GIF</h3>
+            <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-4 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Generated GIF</h3>
               <div className="flex justify-center">
                 <img
                   src={gifUrl}
@@ -618,8 +598,8 @@ export function VideoToGif() {
                 />
               </div>
               {gifBlob && (
-                <p className="text-center text-sm text-slate-400">
-                  Final size: <span className="text-green-400">{formatFileSize(gifBlob.size)}</span>
+                <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                  Final size: <span className="text-green-600 dark:text-green-400">{formatFileSize(gifBlob.size)}</span>
                 </p>
               )}
             </div>

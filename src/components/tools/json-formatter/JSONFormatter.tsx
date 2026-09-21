@@ -14,6 +14,8 @@ import {
   Search,
 } from 'lucide-react';
 import { Button } from '../../common/Button';
+import { Select } from '../../common/Select';
+import { Input } from '../../common/Input';
 import { JsonHighlight } from '../../common/JsonHighlight';
 import { useToast } from '../../common/Toast';
 
@@ -368,32 +370,32 @@ function TreeNodeComponent({
 
   const renderValue = () => {
     if (node.type === 'object') {
-      return <span className="text-slate-400">{`{${node.children?.length || 0}}`}</span>;
+      return <span className="text-gray-500 dark:text-gray-400">{`{${node.children?.length || 0}}`}</span>;
     }
     if (node.type === 'array') {
-      return <span className="text-slate-400">{`[${node.children?.length || 0}]`}</span>;
+      return <span className="text-gray-500 dark:text-gray-400">{`[${node.children?.length || 0}]`}</span>;
     }
     if (node.type === 'string') {
-      return <span className="text-green-400">"{String(node.value)}"</span>;
+      return <span className="text-green-600 dark:text-green-400">"{String(node.value)}"</span>;
     }
     if (node.type === 'number') {
-      return <span className="text-blue-400">{String(node.value)}</span>;
+      return <span className="text-blue-600 dark:text-blue-400">{String(node.value)}</span>;
     }
     if (node.type === 'boolean') {
-      return <span className="text-orange-400">{String(node.value)}</span>;
+      return <span className="text-orange-600 dark:text-orange-400">{String(node.value)}</span>;
     }
     if (node.type === 'null') {
-      return <span className="text-red-400">null</span>;
+      return <span className="text-red-600 dark:text-red-400">null</span>;
     }
-    return <span className="text-slate-300">{String(node.value)}</span>;
+    return <span className="text-gray-700 dark:text-gray-300">{String(node.value)}</span>;
   };
 
   return (
     <div className="font-mono text-sm">
       <div
         className={clsx(
-          'flex items-center gap-1 py-0.5 px-1 rounded hover:bg-slate-700/50 cursor-pointer',
-          isMatch && 'bg-yellow-500/20 border border-yellow-500/50'
+          'flex items-center gap-1 py-0.5 px-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50 cursor-pointer',
+          isMatch && 'bg-yellow-100 border border-yellow-400 dark:bg-yellow-500/20 dark:border-yellow-500/50'
         )}
         style={{ paddingLeft: `${level * 16}px` }}
         onClick={() => hasChildren && onToggle(node.path)}
@@ -408,14 +410,14 @@ function TreeNodeComponent({
         aria-expanded={hasChildren ? node.isExpanded : undefined}
       >
         {hasChildren ? (
-          <span className="w-4 h-4 flex items-center justify-center text-slate-400">
+          <span className="w-4 h-4 flex items-center justify-center text-gray-500 dark:text-gray-400">
             {node.isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
           </span>
         ) : (
           <span className="w-4" />
         )}
-        <span className="text-purple-400">{node.key}</span>
-        <span className="text-slate-500">:</span>
+        <span className="text-purple-600 dark:text-purple-400">{node.key}</span>
+        <span className="text-gray-400 dark:text-gray-500">:</span>
         {renderValue()}
       </div>
       {hasChildren && node.isExpanded && (
@@ -677,19 +679,19 @@ export function JSONFormatter() {
 
         {/* Indentation selector */}
         <div className="flex items-center gap-2">
-          <label htmlFor="indentation-select" className="text-sm text-slate-300">
+          <label htmlFor="indentation-select" className="text-sm text-gray-700 dark:text-gray-300">
             Indent:
           </label>
-          <select
+          <Select
             id="indentation-select"
             value={indentation}
             onChange={(e) => setIndentation(e.target.value as IndentationType)}
-            className="bg-slate-700 text-slate-200 text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-auto py-1.5 text-sm"
           >
             <option value="2-spaces">2 Spaces</option>
             <option value="4-spaces">4 Spaces</option>
             <option value="tabs">Tabs</option>
-          </select>
+          </Select>
         </div>
       </div>
 
@@ -699,8 +701,8 @@ export function JSONFormatter() {
           className={clsx(
             'flex items-center gap-2 px-4 py-2 rounded-lg',
             isValid
-              ? 'bg-green-900/30 border border-green-700/50 text-green-400'
-              : 'bg-red-900/30 border border-red-700/50 text-red-400'
+              ? 'bg-green-50 border border-green-200 text-green-600 dark:bg-green-900/30 dark:border-green-700/50 dark:text-green-400'
+              : 'bg-red-50 border border-red-200 text-red-600 dark:bg-red-900/30 dark:border-red-700/50 dark:text-red-400'
           )}
           role="status"
           aria-live="polite"
@@ -722,7 +724,7 @@ export function JSONFormatter() {
       {/* Error display */}
       {error && (
         <div
-          className="bg-red-900/30 border border-red-700/50 rounded-lg p-4 text-red-400"
+          className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600 dark:bg-red-900/30 dark:border-red-700/50 dark:text-red-400"
           role="alert"
         >
           <div className="font-semibold mb-1">Error at Line {error.line}, Column {error.column}</div>
@@ -734,7 +736,7 @@ export function JSONFormatter() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Input */}
         <div className="space-y-2">
-          <label htmlFor="json-input" className="block text-sm font-medium text-slate-300">
+          <label htmlFor="json-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Input JSON
           </label>
           <div className="relative">
@@ -745,12 +747,12 @@ export function JSONFormatter() {
               placeholder='Paste your JSON here, e.g., {"key": "value"}'
               className={clsx(
                 'w-full h-80 p-4 font-mono text-sm rounded-lg resize-none',
-                'bg-slate-900 text-slate-200 border',
-                'focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-                'placeholder:text-slate-500',
+                'bg-white text-gray-800 border dark:bg-gray-900 dark:text-gray-200',
+                'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500',
+                'placeholder:text-gray-400 dark:placeholder:text-gray-500',
                 error
-                  ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                  : 'border-slate-600'
+                  ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500'
+                  : 'border-gray-300 dark:border-gray-600'
               )}
               spellCheck={false}
               aria-invalid={error ? 'true' : 'false'}
@@ -765,7 +767,7 @@ export function JSONFormatter() {
                   setIsValid(null);
                   setTreeData(null);
                 }}
-                className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded transition-colors"
+                className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
                 aria-label="Clear input"
               >
                 <X className="w-4 h-4" />
@@ -777,7 +779,7 @@ export function JSONFormatter() {
         {/* Output */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-medium text-slate-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Output
             </label>
             <div className="flex gap-2">
@@ -787,12 +789,12 @@ export function JSONFormatter() {
                 className={clsx(
                   'p-1.5 rounded transition-colors',
                   output
-                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'
-                    : 'text-slate-600 cursor-not-allowed'
+                    ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
+                    : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                 )}
                 aria-label="Copy to clipboard"
               >
-                {copySuccess ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                {copySuccess ? <Check className="w-4 h-4 text-green-600 dark:text-green-400" /> : <Copy className="w-4 h-4" />}
               </button>
               <button
                 onClick={downloadFile}
@@ -800,8 +802,8 @@ export function JSONFormatter() {
                 className={clsx(
                   'p-1.5 rounded transition-colors',
                   output
-                    ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'
-                    : 'text-slate-600 cursor-not-allowed'
+                    ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
+                    : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                 )}
                 aria-label="Download file"
               >
@@ -809,16 +811,16 @@ export function JSONFormatter() {
               </button>
             </div>
           </div>
-          <div className="relative bg-slate-900 border border-slate-600 rounded-lg overflow-hidden">
+          <div className="relative bg-white border border-gray-300 rounded-lg overflow-hidden dark:bg-gray-900 dark:border-gray-600">
             <pre
               ref={outputRef}
-              className="h-80 p-4 overflow-auto font-mono text-sm text-slate-200"
+              className="h-80 p-4 overflow-auto font-mono text-sm text-gray-800 dark:text-gray-200"
               tabIndex={0}
               aria-label="Formatted output"
             >
               {outputFormat === 'json' && output ? (
                 <code className="flex">
-                  <span className="select-none pr-4 text-slate-500 border-r border-slate-700 mr-4">
+                  <span className="select-none pr-4 text-gray-400 border-r border-gray-200 mr-4 dark:text-gray-500 dark:border-gray-700">
                     {outputLines.map((_, i) => (
                       <div key={i}>{i + 1}</div>
                     ))}
@@ -834,15 +836,15 @@ export function JSONFormatter() {
       </div>
 
       {/* View Mode Tabs */}
-      <div className="border-b border-slate-700">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex gap-4" aria-label="View modes">
           <button
             onClick={() => setViewMode('formatted')}
             className={clsx(
               'pb-2 px-1 text-sm font-medium border-b-2 transition-colors',
               viewMode === 'formatted'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             )}
             aria-current={viewMode === 'formatted' ? 'page' : undefined}
           >
@@ -853,8 +855,8 @@ export function JSONFormatter() {
             className={clsx(
               'pb-2 px-1 text-sm font-medium border-b-2 transition-colors',
               viewMode === 'tree'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             )}
             aria-current={viewMode === 'tree' ? 'page' : undefined}
           >
@@ -865,8 +867,8 @@ export function JSONFormatter() {
             className={clsx(
               'pb-2 px-1 text-sm font-medium border-b-2 transition-colors',
               viewMode === 'compare'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             )}
             aria-current={viewMode === 'compare' ? 'page' : undefined}
           >
@@ -877,18 +879,18 @@ export function JSONFormatter() {
 
       {/* Tree View Panel */}
       {viewMode === 'tree' && treeData && (
-        <div className="bg-slate-900 border border-slate-600 rounded-lg p-4">
+        <div className="bg-white border border-gray-300 rounded-lg p-4 dark:bg-gray-900 dark:border-gray-600">
           <div className="mb-4">
             <label htmlFor="tree-search" className="sr-only">Search in JSON</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
                 id="tree-search"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search keys or values..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="pl-10 py-2 text-sm"
               />
             </div>
           </div>
@@ -906,7 +908,7 @@ export function JSONFormatter() {
       {viewMode === 'compare' && (
         <div className="space-y-4">
           <div>
-            <label htmlFor="compare-input" className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="compare-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               JSON to Compare (Second JSON)
             </label>
             <textarea
@@ -914,7 +916,7 @@ export function JSONFormatter() {
               value={compareInput}
               onChange={(e) => setCompareInput(e.target.value)}
               placeholder='Paste second JSON to compare, e.g., {"key": "value2"}'
-              className="w-full h-40 p-4 font-mono text-sm rounded-lg resize-none bg-slate-900 text-slate-200 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-slate-500"
+              className="w-full h-40 p-4 font-mono text-sm rounded-lg resize-none bg-white text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-gray-400 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-600 dark:placeholder:text-gray-500"
               spellCheck={false}
             />
           </div>
@@ -924,38 +926,38 @@ export function JSONFormatter() {
 
           {compareResult && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-4">
-                <h4 className="text-green-400 font-medium mb-2">Added ({compareResult.added.length})</h4>
-                <ul className="text-sm text-green-300 space-y-1 font-mono max-h-40 overflow-auto">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 dark:bg-green-900/30 dark:border-green-700/50">
+                <h4 className="text-green-700 dark:text-green-400 font-medium mb-2">Added ({compareResult.added.length})</h4>
+                <ul className="text-sm text-green-700 dark:text-green-300 space-y-1 font-mono max-h-40 overflow-auto">
                   {compareResult.added.map((path, i) => (
                     <li key={i}>{path}</li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-4">
-                <h4 className="text-red-400 font-medium mb-2">Removed ({compareResult.removed.length})</h4>
-                <ul className="text-sm text-red-300 space-y-1 font-mono max-h-40 overflow-auto">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 dark:bg-red-900/30 dark:border-red-700/50">
+                <h4 className="text-red-700 dark:text-red-400 font-medium mb-2">Removed ({compareResult.removed.length})</h4>
+                <ul className="text-sm text-red-700 dark:text-red-300 space-y-1 font-mono max-h-40 overflow-auto">
                   {compareResult.removed.map((path, i) => (
                     <li key={i}>{path}</li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-4">
-                <h4 className="text-yellow-400 font-medium mb-2">Changed ({compareResult.changed.length})</h4>
-                <ul className="text-sm text-yellow-300 space-y-1 font-mono max-h-40 overflow-auto">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 dark:bg-yellow-900/30 dark:border-yellow-700/50">
+                <h4 className="text-yellow-700 dark:text-yellow-400 font-medium mb-2">Changed ({compareResult.changed.length})</h4>
+                <ul className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1 font-mono max-h-40 overflow-auto">
                   {compareResult.changed.map((path, i) => (
                     <li key={i}>{path}</li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-slate-700/30 border border-slate-600/50 rounded-lg p-4">
-                <h4 className="text-slate-400 font-medium mb-2">Unchanged ({compareResult.unchanged.length})</h4>
-                <ul className="text-sm text-slate-300 space-y-1 font-mono max-h-40 overflow-auto">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 dark:bg-gray-700/30 dark:border-gray-600/50">
+                <h4 className="text-gray-600 dark:text-gray-400 font-medium mb-2">Unchanged ({compareResult.unchanged.length})</h4>
+                <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1 font-mono max-h-40 overflow-auto">
                   {compareResult.unchanged.slice(0, 20).map((path, i) => (
                     <li key={i}>{path}</li>
                   ))}
                   {compareResult.unchanged.length > 20 && (
-                    <li className="text-slate-500">...and {compareResult.unchanged.length - 20} more</li>
+                    <li className="text-gray-400 dark:text-gray-500">...and {compareResult.unchanged.length - 20} more</li>
                   )}
                 </ul>
               </div>
@@ -966,7 +968,7 @@ export function JSONFormatter() {
 
       {/* Convert to Other Formats */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-white">Convert to Other Formats</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Convert to Other Formats</h3>
         <div className="flex flex-wrap gap-2">
           <Button
             onClick={() => {

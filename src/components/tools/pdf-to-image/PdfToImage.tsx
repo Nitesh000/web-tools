@@ -1,7 +1,9 @@
 import { useCallback } from 'react'
 import { useDropzone, type FileRejection } from 'react-dropzone'
-import { FileUp, FileText, Loader2, Download, Check } from 'lucide-react'
+import { FileUp, FileText, Download, Check } from 'lucide-react'
 import { usePdfToImage } from '../../../hooks/usePdfToImage'
+import { Button } from '../../common/Button'
+import { Select } from '../../common/Select'
 import { useToast } from '../../common/Toast'
 
 export function PdfToImage() {
@@ -54,49 +56,46 @@ export function PdfToImage() {
       {!pdfFile ? (
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
             isDragActive
-              ? 'border-blue-500 bg-blue-500/10'
-              : 'border-slate-600 hover:border-blue-500 hover:bg-slate-700/50'
+              ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
+              : 'border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500'
           }`}
         >
           <input {...getInputProps()} />
-          <FileUp className="w-12 h-12 mx-auto mb-4 text-slate-400" strokeWidth={1.5} />
-          <p className="text-lg font-medium text-white mb-2">
+          <FileUp className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
+          <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             {isDragActive ? 'Drop your PDF here' : 'Drag & drop your PDF here'}
           </p>
-          <p className="text-slate-400">or click to browse files</p>
+          <p className="text-gray-500 dark:text-gray-400">or click to browse files</p>
         </div>
       ) : (
-        <div className="flex items-center justify-between p-4 bg-slate-700/50 rounded-lg">
+        <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-red-400" />
+            <div className="w-10 h-10 bg-red-100 dark:bg-red-500/20 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-red-500 dark:text-red-400" />
             </div>
             <div>
-              <p className="font-medium text-white">{pdfFile.name}</p>
-              <p className="text-sm text-slate-400">
+              <p className="font-medium text-gray-900 dark:text-white">{pdfFile.name}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {(pdfFile.size / 1024 / 1024).toFixed(2)} MB • {pages.length} pages
               </p>
             </div>
           </div>
-          <button
-            onClick={clearPdf}
-            className="px-4 py-2 text-sm bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors"
-          >
+          <Button size="sm" variant="secondary" onClick={clearPdf}>
             Remove
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Loading Progress */}
       {isLoading && (
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-slate-300">
+          <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300">
             <span>Loading PDF...</span>
             <span>{Math.round(progress)}%</span>
           </div>
-          <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-blue-500 transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -109,22 +108,16 @@ export function PdfToImage() {
       {pages.length > 0 && !isLoading && (
         <>
           <div className="flex gap-2 justify-between items-center">
-            <p className="text-slate-300">
+            <p className="text-gray-700 dark:text-gray-300">
               {selectedPages.length} of {pages.length} pages selected
             </p>
             <div className="flex gap-2">
-              <button
-                onClick={selectAllPages}
-                className="px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
-              >
+              <Button size="sm" variant="secondary" onClick={selectAllPages}>
                 Select All
-              </button>
-              <button
-                onClick={deselectAllPages}
-                className="px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
-              >
+              </Button>
+              <Button size="sm" variant="secondary" onClick={deselectAllPages}>
                 Deselect All
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -136,7 +129,7 @@ export function PdfToImage() {
                 className={`relative aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all ${
                   selectedPages.includes(page.pageNumber)
                     ? 'border-blue-500 ring-2 ring-blue-500/50'
-                    : 'border-slate-600 hover:border-slate-500'
+                    : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
                 }`}
               >
                 <img
@@ -157,44 +150,34 @@ export function PdfToImage() {
           </div>
 
           {/* Settings */}
-          <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-slate-700">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Output Format
-              </label>
-              <select
-                value={outputFormat}
-                onChange={(e) => setOutputFormat(e.target.value as 'jpg' | 'png' | 'webp')}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="jpg">JPG - Best for photos</option>
-                <option value="png">PNG - Best for graphics</option>
-                <option value="webp">WebP - Modern format</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Quality
-              </label>
-              <select
-                value={quality}
-                onChange={(e) => setQuality(e.target.value as 'high' | 'low')}
-                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="high">High Quality (larger files)</option>
-                <option value="low">Low Quality (smaller files)</option>
-              </select>
-            </div>
+          <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Select
+              label="Output Format"
+              value={outputFormat}
+              onChange={(e) => setOutputFormat(e.target.value as 'jpg' | 'png' | 'webp')}
+            >
+              <option value="jpg">JPG - Best for photos</option>
+              <option value="png">PNG - Best for graphics</option>
+              <option value="webp">WebP - Modern format</option>
+            </Select>
+            <Select
+              label="Quality"
+              value={quality}
+              onChange={(e) => setQuality(e.target.value as 'high' | 'low')}
+            >
+              <option value="high">High Quality (larger files)</option>
+              <option value="low">Low Quality (smaller files)</option>
+            </Select>
           </div>
 
           {/* Conversion Progress */}
           {isConverting && (
             <div className="space-y-2">
-              <div className="flex justify-between text-sm text-slate-300">
+              <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                 <span>Converting...</span>
                 <span>{Math.round(progress)}%</span>
               </div>
-              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-green-500 transition-all duration-300"
                   style={{ width: `${progress}%` }}
@@ -204,7 +187,9 @@ export function PdfToImage() {
           )}
 
           {/* Convert Button */}
-          <button
+          <Button
+            size="lg"
+            fullWidth
             onClick={async () => {
               try {
                 await convertSelected()
@@ -214,20 +199,11 @@ export function PdfToImage() {
               }
             }}
             disabled={selectedPages.length === 0 || isConverting}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            isLoading={isConverting}
+            leftIcon={!isConverting ? <Download className="w-5 h-5" /> : undefined}
           >
-            {isConverting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Converting...
-              </>
-            ) : (
-              <>
-                <Download className="w-5 h-5" />
-                Convert {selectedPages.length} Page{selectedPages.length !== 1 ? 's' : ''} to Images
-              </>
-            )}
-          </button>
+            {isConverting ? 'Converting...' : `Convert ${selectedPages.length} Page${selectedPages.length !== 1 ? 's' : ''} to Images`}
+          </Button>
         </>
       )}
     </div>
